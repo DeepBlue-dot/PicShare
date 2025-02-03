@@ -3,6 +3,8 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import { errorHandler, unknownURL } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
@@ -12,5 +14,8 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/board", boardRoutes);
+app.use("/api/auth", authRoutes);
+app.all('*', unknownURL)
+app.use(errorHandler)
 
 export default app;

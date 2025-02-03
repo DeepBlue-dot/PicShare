@@ -1,8 +1,5 @@
-Here’s a comprehensive **README.md** file for your Pinterest-like project. This README will help anyone (including yourself or collaborators) understand the project, set it up, and contribute to it.
 
----
-
-# **Pinterest-like App**
+# **PicShare App**
 
 A full-stack web application inspired by Pinterest, built with **React** (frontend), **Node.js** (backend), and **MongoDB** (database). This project allows users to create, view, like, and save posts with images, as well as organize them into boards.
 

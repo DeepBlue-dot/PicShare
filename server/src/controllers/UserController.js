@@ -19,24 +19,6 @@ async function getAllUsers(req, res) {
   }
 }
 
-async function createUser(req, res) {
-  try {
-    const user = req.body.user;
-    const newUser = await UserModel.create(user);
-    res.status(201).json({
-      status: "success",
-      data: {
-        user: newUser,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
 
 async function getUser(req, res) {
   try {
@@ -94,4 +76,6 @@ async function deleteUser(req, res) {
   }
 }
 
-export { getAllUsers, createUser, getUser, updateUser, deleteUser };
+
+
+export { getAllUsers, getUser, updateUser, deleteUser };
