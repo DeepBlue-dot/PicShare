@@ -40,12 +40,14 @@ async function getUser(req, res) {
 
 async function userRegister(req, res, next) {
   if (req.body.user.password != req.body.user.confirmPassword) {
-    throw new AppError("Passwords do not match.", 400, "failed");
+    throw new AppError("Passwords do not match.", 400);
   }
   const verificationToken = jwt.sign(
     { email: req.body.user.email },
     process.env.JWT_SECRET
   );
+
+  const user = await UserModel.create({ ...req.body.user, verificationToken });
 
   await sendMail(
     "picshare@resend.dev", // FROM
@@ -68,7 +70,6 @@ async function userRegister(req, res, next) {
     `
   );
   
-  const user = await UserModel.create({ ...req.body.user, verificationToken });
 
 
   res.status(201).json({

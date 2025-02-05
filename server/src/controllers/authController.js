@@ -89,12 +89,43 @@ async function resetPasswordGenerator(req, res) {
 
   res.status(200).json({
     status: "success",
-    message: "rest token sent",
+    message: "reset token sent",
   });
 }
 
 async function resetPasswordHandler(req, res) {
-  
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  if (!password || !confirmPassword) {
+    return new AppError("Please provide both password and confirm password.", 400);
+  }
+  if (password !== confirmPassword) {
+    return new AppError("Passwords do not match.", 400);
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return new AppError("Token has expired. Please request a new password reset.", 401);
+    }
+    return new AppError("Invalid token. Please log in again.", 401);
+  }
+
+  const user = await UserModel.findById(decoded.id);
+  if (!user) {
+    return new AppError("Invalid token. Please log in again.", 401);
+  }
+
+  user.password = password;
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Password changed successfully.",
+  });
 }
 
 export {
