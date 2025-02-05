@@ -19,7 +19,6 @@ async function getAllUsers(req, res) {
   }
 }
 
-
 async function getUser(req, res) {
   try {
     const user = await UserModel.findById(req.params.id);
@@ -36,6 +35,20 @@ async function getUser(req, res) {
       message: error,
     });
   }
+}
+
+async function userRegister(req, res, next) {
+  if (req.body.user.password != req.body.user.confirmPassword) {
+    throw new AppError("Passwords do not match.", 400, "failed");
+  }
+  const user = await UserModel.create(req.body.user);
+
+  res.status(201).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
 }
 
 async function updateUser(req, res) {
@@ -65,7 +78,7 @@ async function deleteUser(req, res) {
     await UserModel.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: "success",
-      data: null
+      data: null,
     });
   } catch (error) {
     console.log(error);
@@ -76,6 +89,4 @@ async function deleteUser(req, res) {
   }
 }
 
-
-
-export { getAllUsers, getUser, updateUser, deleteUser };
+export {userRegister, getAllUsers, getUser, updateUser, deleteUser };

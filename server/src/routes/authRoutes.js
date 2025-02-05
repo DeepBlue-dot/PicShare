@@ -1,11 +1,11 @@
 import express from "express";
-import { userLogin, userLogOut, userRegister } from "../controllers/authController.js";
+import { userLogin, userLogOut } from "../controllers/authController.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const authRoutes = express.Router()
 
-authRoutes.route("/register").post(userRegister)
-authRoutes.route("/login").post(userLogin)
-authRoutes.route("/logout").get(userLogOut)
+authRoutes.route("/login").post(asyncHandler(userLogin))
+authRoutes.route("/logout").get(asyncHandler(userLogOut))
 
 
 
