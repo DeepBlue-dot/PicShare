@@ -20,21 +20,14 @@ async function getAllUsers(req, res) {
 }
 
 async function getUser(req, res) {
-  try {
-    const user = await UserModel.findById(req.params.id);
+    const user = await UserModel.findById(req.user);
+    
     res.status(201).json({
       status: "success",
       data: {
         user,
       },
     });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
 }
 
 async function userRegister(req, res, next) {

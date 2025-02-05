@@ -2,7 +2,6 @@ import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 
 async function userLogin(req, res) {
   const { email, password } = req.body;
@@ -39,7 +38,7 @@ async function userLogin(req, res) {
 
 async function userLogOut(req, res) {
   res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 1000), // Expires in 1 second
+    expires: new Date(Date.now()),
     httpOnly: true,
   });
 
