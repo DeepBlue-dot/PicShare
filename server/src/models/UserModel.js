@@ -19,9 +19,6 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String, default: "" },
   savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   isVerified: { type: Boolean, default: false },
-  verificationToken: { type: String },
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

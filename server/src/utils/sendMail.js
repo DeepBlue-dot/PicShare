@@ -15,8 +15,6 @@ async function sendMail(from, to, subject, html) {
       if (error) {
         throw new AppError("server email error", 500)
       }
-    
-      console.log({ data });
 }
 
 export default sendMail;

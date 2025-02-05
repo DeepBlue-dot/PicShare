@@ -3,6 +3,18 @@ import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 
+async function getAllUsers(req, res) {
+  const users= await (await UserModel.find()).map((user)=>user.getPublicProfile())
+
+  res.status(200).json({
+    status: "success",
+    length: users.length,
+    data: {
+      users,
+    },
+  });
+}
+
 async function getUserById(req, res, next) {
   const user = UserModel.findById(req.params.id);
   if (!user) throw AppError("user not found", 400);
@@ -34,14 +46,30 @@ async function userRegister(req, res, next) {
     { email: req.body.user.email },
     process.env.JWT_SECRET
   );
-  const user = await UserModel.create({ ...req.body.user, verificationToken });
 
   await sendMail(
     "picshare@resend.dev", // FROM
-    user.email, // TO
+    req.body.user.email, // TO
     "Verify Your Account", // SUBJECT
-    `<p>Please verify your email using this token: <strong>${verificationToken}</strong></p>` // HTML CONTENT
+    `
+    <div style="font-family: Arial, sans-serif; text-align: center; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+      <h2 style="color: #333;">Welcome to PicShare! 📸</h2>
+      <p style="color: #555;">Thank you for signing up. Please verify your email address to activate your account.</p>
+      <a href="http://localhost:8080/api/auth/verify/${verificationToken}" 
+         style="display: inline-block; padding: 12px 20px; margin: 20px 0; font-size: 16px; color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">
+        Verify My Account
+      </a>
+      <p style="color: #555;">Or copy and paste this link into your browser:</p>
+      <p style="background-color: #f4f4f4; padding: 10px; border-radius: 5px; word-break: break-all;">
+        http://localhost:8080/api/auth/verify/${verificationToken}
+      </p>
+      <p style="color: #777; font-size: 14px;">If you didn't request this, please ignore this email.</p>
+    </div>
+    `
   );
+  
+  const user = await UserModel.create({ ...req.body.user, verificationToken });
+
 
   res.status(201).json({
     status: "success",
@@ -107,4 +135,4 @@ async function deleteUser(req, res) {
   });
 }
 
-export { getUserById, userRegister, getUser, updateUser, deleteUser };
+export { getUserById, getAllUsers,userRegister, getUser, updateUser, deleteUser };
