@@ -36,6 +36,10 @@ async function userLogin(req, res) {
   });
 }
 
+async function verifyAccount(params) {
+  
+}
+
 async function userLogOut(req, res) {
   res.cookie("jwt", "loggedout", {
     expires: new Date(Date.now()),

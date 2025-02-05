@@ -26,27 +26,25 @@ const userSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-
 userSchema.post("save", (error, doc, next) => {
-  // Handle unique constraint errors
+
   if (error.name === "MongoServerError" && error.code === 11000) {
-    const duplicateField = Object.keys(error.keyValue)[0];
-    const message = `${duplicateField} already exists. Please use another value.`;
+    const message = Object.keys(error.keyValue)
+      .map((field) => `${field} already exists. Please use another value.`)
+      .join(", \n");
     return next(new AppError(message, 400, "fail"));
   }
 
-  // Handle validation errors
   if (error.name === "ValidationError") {
     const message = Object.values(error.errors)
       .map((err) => err.message)
-      .join(", ");
+      .join(", \n");
     return next(new AppError(message, 400, "fail"));
   }
 
-  next(error); // Pass other errors to the global error handler
+  next(error);
 });
 
-// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
@@ -57,6 +55,27 @@ userSchema.pre("save", async function (next) {
     next(error);
   }
 });
+
+userSchema.methods.getMyProfile =  function () {
+  return  {
+    username: this.username,
+    email: this.email,
+    profilePicture: this.profilePicture,
+    savedPosts: this.savedPosts,
+    isVerified: this.isVerified,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  }
+}
+
+userSchema.methods.getPublicProfile =  function () {
+  return  {
+    username: this.username,
+    email: this.email,
+    profilePicture: this.profilePicture,
+    savedPosts: this.savedPosts,
+  }
+}
 
 // Indexes for faster queries
 userSchema.index({ username: 1, email: 1 });
