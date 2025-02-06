@@ -1,3 +1,2 @@
 user profile pic 
-user password reset
 improve email

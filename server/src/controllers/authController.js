@@ -72,36 +72,55 @@ async function userLogOut(req, res) {
   });
 }
 
+
 async function resetPasswordGenerator(req, res) {
-  const user = await UserModel.findOne({ email: req.body.email });
-  if (!user) throw new AppError("Invalid email.", 401);
+  try {
+    const user = await UserModel.findOne({ email: req.body.email });
+    if (!user) throw new AppError('Invalid email.', 401);
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
 
-  await sendMail(
-    "me@example.com",
-    user.email,
-    "Password Reset",
-    `http://localhost:8080/api/auth/resetPassword/${token}`
-  );
+    const resetLink = `http://localhost:8080/api/auth/resetPassword/${token}`;
 
-  res.status(200).json({
-    status: "success",
-    message: "reset token sent",
-  });
+    await sendMail(
+      'fikaduyeabsira89@gmail.com',
+      user.email, 
+      'Password Reset Request', 
+      'passwordReset', 
+      {
+        name: user.name || user.email, 
+        resetLink: resetLink,
+        company: 'PicShare', 
+      }
+    );
+
+    // Send success response
+    res.status(200).json({
+      status: 'success',
+      message: 'Password reset token sent to your email.',
+    });
+
+  } catch (error) {
+
+    res.status(error.statusCode || 500).json({
+      status: 'error',
+      message: error.message,
+    });
+  }
 }
 
+export default resetPasswordGenerator;
 async function resetPasswordHandler(req, res) {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
 
   if (!password || !confirmPassword) {
-    return new AppError("Please provide both password and confirm password.", 400);
+    throw new AppError("Please provide both password and confirm password.", 400);
   }
   if (password !== confirmPassword) {
-    return new AppError("Passwords do not match.", 400);
+    throw new AppError("Passwords do not match.", 400);
   }
 
   let decoded;
@@ -109,14 +128,14 @@ async function resetPasswordHandler(req, res) {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return new AppError("Token has expired. Please request a new password reset.", 401);
+      throw new AppError("Token has expired. Please request a new password reset.", 401);
     }
-    return new AppError("Invalid token. Please log in again.", 401);
+    throw new AppError("Invalid token. Please log in again.", 401);
   }
 
   const user = await UserModel.findById(decoded.id);
   if (!user) {
-    return new AppError("Invalid token. Please log in again.", 401);
+    throw new AppError("Invalid token. Please log in again.", 401);
   }
 
   user.password = password;
