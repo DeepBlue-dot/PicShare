@@ -41,6 +41,7 @@ async function sendMail(from, to, subject, templateName, templateData) {
     const result = await request;
     return result.body; 
   } catch (err) {
+    console.error(err.message);
     throw new AppError('Failed to send email', 500); 
   }
 }

@@ -57,14 +57,13 @@ async function userRegister(req, res, next) {
 
   const verificationLink = `http://localhost:8080/api/auth/verify/${verificationToken}`;
 
-  // Send the verification email using the template
   await sendMail(
-    "fikaduyeabsira89@gmail.com", // Sender email
-    req.body.user.email, // Recipient email
-    "Verify Your Account", // Email subject
-    "accountVerification", // Template name (without .hbs extension)
+    "fikaduyeabsira89@gmail.com",
+    req.body.user.email,
+    "Verify Your Account", 
+    "accountVerification",
     {
-      name: req.body.user.name || req.body.user.email, // Use the user's name or email as a fallback
+      name: req.body.user.username || req.body.user.email, 
       verificationLink: verificationLink,
       company: "PicShare",
     }

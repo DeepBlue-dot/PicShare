@@ -90,7 +90,7 @@ async function resetPasswordGenerator(req, res) {
       'Password Reset Request', 
       'passwordReset', 
       {
-        name: user.name || user.email, 
+        name: user.username || user.email, 
         resetLink: resetLink,
         company: 'PicShare', 
       }
@@ -111,7 +111,6 @@ async function resetPasswordGenerator(req, res) {
   }
 }
 
-export default resetPasswordGenerator;
 async function resetPasswordHandler(req, res) {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
