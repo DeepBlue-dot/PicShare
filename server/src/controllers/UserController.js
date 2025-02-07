@@ -50,6 +50,8 @@ async function userRegister(req, res, next) {
     process.env.JWT_SECRET
   );
 
+  req.body.user.profilePicture = req.file ? req.file.path : "";
+
   const user = await UserModel.create({
     ...req.body.user,
     verificationToken,
@@ -102,6 +104,10 @@ async function updateUser(req, res) {
       invalidFields.push(key);
     }
   });
+
+  if (req.file) {
+    user.profilePicture = req.file.path;
+  }
 
   if (invalidFields.length > 0) {
     throw new AppError(`Invalid properties: ${invalidFields.join(", ")}`, 400);
