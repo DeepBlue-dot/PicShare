@@ -1,100 +1,20 @@
 import PostModel from "../models/PostModel.js";
 
-async function getAllPosts(req, res) {
-  try {
-    const posts = await PostModel.find();
-    res.json({
-      status: "success",
-      results: posts.length,
-      data: {
-        posts: posts,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
-
-async function getPost(req, res) {
-  try {
-    const post = await PostModel.findById(req.params.id);
-    res.json({
-      status: "success",
-      data: {
-        post,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
-
-async function createPost(req, res) {
-  try {
-    const newPost = await PostModel.create(req.body.post);
-    res.status(201).json({
-      status: "success",
-      data: {
-        newPost,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
-
-async function updatePost(req, res) {
-  try {
-    const newpost = await PostModel.findByIdAndUpdate(
-      req.params.id,
-      req.body.post,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        newpost,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
-
-async function deletePost(req, res) {
-  try {
-    await PostModel.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: "failed",
-      message: error,
-    });
-  }
-}
-
-export { getAllPosts, getPost, createPost, updatePost, deletePost };
+export async function createPost(req, res) {}
+export async function getAllPost(req, res) {}
+export async function getPostById(req, res) {}
+export async function updatePost(req, res) {}
+export async function deletePost(req, res) {}
+export async function likePost(req, res) {}
+export async function unlikePost(req, res) {}
+export async function getComments(req, res) {}
+export async function addComment(req, res) {}
+export async function deleteComment(req, res) {}
+export async function editComment(req, res) {}
+export async function getPostsbyUser(req, res) {}
+export async function getUserPosts(req, res) {}
+export async function searchPosts(req, res) {}
+export async function commentsforPost(req, res) {}
+export async function savePost(req, res) {}
+export async function unsavePost(req, res) {}
+export async function getSavedPosts(req, res) {}
