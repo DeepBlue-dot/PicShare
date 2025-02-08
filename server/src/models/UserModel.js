@@ -3,28 +3,30 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import AppError from "../utils/appError.js";
 
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true, minlength: 3 },
-  email: {
-    type: String,
-    required: [true, "Please provide your email"],
-    unique: true,
-    lowercase: true,
-    validate: {
-      validator: (email) => validator.isEmail(email),
-      message: "Please provide a valid email",
+const userSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true, unique: true, minlength: 3 },
+    email: {
+      type: String,
+      required: [true, "Please provide your email"],
+      unique: true,
+      lowercase: true,
+      validate: {
+        validator: (email) => validator.isEmail(email),
+        message: "Please provide a valid email",
+      },
     },
+    password: { type: String, required: true },
+    profilePicture: { type: String, default: "" },
+    savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    isVerified: { type: Boolean, default: false },
   },
-  password: { type: String, required: true },
-  profilePicture: { type: String, default: "" },
-  savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-  isVerified: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  {
+    timestamps: true,
+  }
+);
 
 userSchema.post("save", (error, doc, next) => {
-
   if (error.name === "MongoServerError" && error.code === 11000) {
     const message = Object.keys(error.keyValue)
       .map((field) => `${field} already exists. Please use another value.`)
@@ -53,8 +55,8 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.methods.getMyProfile =  function () {
-  return  {
+userSchema.methods.getMyProfile = function () {
+  return {
     username: this.username,
     email: this.email,
     profilePicture: this.profilePicture,
@@ -62,17 +64,17 @@ userSchema.methods.getMyProfile =  function () {
     isVerified: this.isVerified,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
-  }
-}
+  };
+};
 
-userSchema.methods.getPublicProfile =  function () {
-  return  {
+userSchema.methods.getPublicProfile = function () {
+  return {
     username: this.username,
     email: this.email,
     profilePicture: this.profilePicture,
     savedPosts: this.savedPosts,
-  }
-}
+  };
+};
 
 // Indexes for faster queries
 userSchema.index({ username: 1, email: 1 });

@@ -1,56 +1,58 @@
 import mongoose from "mongoose";
 import AppError from "../utils/appError.js";
 
-const postSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, "A post must have a title."],
-  },
-  description: {
-    type: String,
-  },
-  imageUrl: {
-    type: String,
-    required: [true, "A post must have an image URL."],
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: [true, "A post must have a creator."],
-  },
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  comments: {
-    type: [
-      {
-        text: { type: String, required: [true, "A comment must have text."] },
-        commentedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: [true, "A comment must have a commenter."],
+const postSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, "A post must have a title."],
+    },
+    description: {
+      type: String,
+    },
+    imageUrl: {
+      type: String,
+      required: [true, "A post must have an image URL."],
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "A post must have a creator."],
+    },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    comments: {
+      type: [
+        {
+          text: { type: String, required: [true, "A comment must have text."] },
+          commentedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "A comment must have a commenter."],
+          },
+          createdAt: { type: Date, default: Date.now },
         },
-        createdAt: { type: Date, default: Date.now },
+      ],
+      validate: {
+        validator: function (comments) {
+          return comments.length <= 100;
+        },
+        message: "A post cannot have more than 100 comments.",
       },
-    ],
-    validate: {
-      validator: function (comments) {
-        return comments.length <= 100;
+    },
+    tags: {
+      type: [String],
+      validate: {
+        validator: function (tags) {
+          return tags.length <= 10;
+        },
+        message: "A post cannot have more than 10 tags.",
       },
-      message: "A post cannot have more than 100 comments.",
     },
   },
-  tags: {
-    type: [String],
-    validate: {
-      validator: function (tags) {
-        return tags.length <= 10;
-      },
-      message: "A post cannot have more than 10 tags.",
-    },
-
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 postSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {

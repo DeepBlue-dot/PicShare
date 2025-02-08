@@ -1,41 +1,44 @@
 import mongoose from "mongoose";
 
-const boardSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    minlength: [3, "Board name must be at least 3 characters long."],
-    maxlength: [50, "Board name cannot exceed 50 characters."],
-  },
-  description: {
-    type: String,
-    maxlength: [500, "Description cannot exceed 500 characters."],
-  },
-  coverImage: {
-    type: String,
-    default: ""
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-  privacy: {
-    type: String,
-    enum: ["public", "private"],
-    default: "public",
-  },
-  tags: {
-    type: [String],
-    validate: {
-      validator: (tags) => tags.length <= 10,
-      message: "A board cannot have more than 10 tags.",
+const boardSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      minlength: [3, "Board name must be at least 3 characters long."],
+      maxlength: [50, "Board name cannot exceed 50 characters."],
+    },
+    description: {
+      type: String,
+      maxlength: [500, "Description cannot exceed 500 characters."],
+    },
+    coverImage: {
+      type: String,
+      default: "",
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    privacy: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
+    tags: {
+      type: [String],
+      validate: {
+        validator: (tags) => tags.length <= 10,
+        message: "A board cannot have more than 10 tags.",
+      },
     },
   },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  {
+    timestamps: true, 
+  }
+);
 
 boardSchema.methods.addPost = function (postId) {
   if (!this.posts.includes(postId)) {

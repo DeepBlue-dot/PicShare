@@ -1,2 +1,3 @@
 user profile pic 
 work on image upload
+add express-validator
