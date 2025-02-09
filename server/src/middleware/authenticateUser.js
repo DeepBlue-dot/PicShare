@@ -1,6 +1,7 @@
 import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
+import decodeJWT from "../utils/decodeJwt.js";
 
 async function authenticateUser(req, res, next) {
   const jwtToken = req.cookies.jwt;
@@ -11,8 +12,7 @@ async function authenticateUser(req, res, next) {
       401
     );
 
-  try {
-    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+    const decoded = decodeJWT(jwtToken)
 
     const user = await UserModel.findById(decoded.id);
     if (!user) {
@@ -24,9 +24,6 @@ async function authenticateUser(req, res, next) {
     }
     req.user = decoded.id;
     next();
-  } catch (error) {
-    throw new AppError("Invalid token. Please log in again.", 401);
-  }
 }
 
 export default authenticateUser;

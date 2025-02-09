@@ -41,31 +41,27 @@ async function getUser(req, res) {
 }
 
 async function userRegister(req, res, next) {
-  if (req.body.user.password !== req.body.user.confirmPassword) {
-    throw new AppError("Passwords do not match.", 400);
-  }
-
   const verificationToken = jwt.sign(
-    { email: req.body.user.email },
+    { email: req.body.email },
     process.env.JWT_SECRET
   );
 
-  req.body.user.profilePicture = req.file ? req.file.path : "";
+  req.body.profilePicture = req.file ? req.file.path : "";
 
   const user = await UserModel.create({
-    ...req.body.user,
+    ...req.body,
     verificationToken,
   });
 
-  const verificationLink = `http://localhost:8080/api/auth/verify/${verificationToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify/${verificationToken}`;
 
   await sendMail(
-    "fikaduyeabsira89@gmail.com",
-    req.body.user.email,
-    "Verify Your Account", 
+    process.env.EMAIL_FROM,
+    req.body.email,
+    "Verify Your Account",
     "accountVerification",
     {
-      name: req.body.user.username || req.body.user.email, 
+      name: req.body.username || req.body.email,
       verificationLink: verificationLink,
       company: "PicShare",
     }
@@ -80,7 +76,7 @@ async function userRegister(req, res, next) {
 }
 
 async function updateUser(req, res) {
-  const newUser = req.body.user;
+  const newUser = req.body;
 
   if (!newUser || Object.keys(newUser).length === 0) {
     throw new AppError("No update data provided", 400);
@@ -88,6 +84,7 @@ async function updateUser(req, res) {
   const user = await UserModel.findById(req.user);
 
   const allowedUpdates = ["username", "email", "password", "profilePicture"];
+  const invalidFields = [];
 
   if (newUser.password || newUser.confirmPassword) {
     if (newUser.password !== newUser.confirmPassword) {
@@ -95,12 +92,10 @@ async function updateUser(req, res) {
     }
   }
 
-  const invalidFields = [];
-
   Object.keys(newUser).forEach((key) => {
     if (allowedUpdates.includes(key)) {
       user[key] = newUser[key];
-    } else if (key != "confirmPassword") {
+    } else if (key !== "confirmPassword") {
       invalidFields.push(key);
     }
   });

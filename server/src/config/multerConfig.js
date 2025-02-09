@@ -1,7 +1,7 @@
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-import AppError from "../utils/appError";
+import AppError from "../utils/appError.js";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
