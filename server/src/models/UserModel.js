@@ -16,7 +16,12 @@ const userSchema = new mongoose.Schema(
         message: "Please provide a valid email",
       },
     },
-    password: { type: String, required: true },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters long"],
+      select: false,
+    },
     profilePicture: { type: String, default: "" },
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isVerified: { type: Boolean, default: false },
@@ -55,18 +60,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.methods.getMyProfile = function () {
-  return {
-    username: this.username,
-    email: this.email,
-    profilePicture: this.profilePicture,
-    savedPosts: this.savedPosts,
-    isVerified: this.isVerified,
-    createdAt: this.createdAt,
-    updatedAt: this.updatedAt,
-  };
-};
-
 userSchema.methods.getPublicProfile = function () {
   return {
     username: this.username,
@@ -74,6 +67,10 @@ userSchema.methods.getPublicProfile = function () {
     profilePicture: this.profilePicture,
     savedPosts: this.savedPosts,
   };
+};
+
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
 // Indexes for faster queries
