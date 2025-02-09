@@ -5,11 +5,10 @@ import {
   getUser,
   updateUser,
   getUserById,
-  getAllUsers,
 } from "../controllers/UserController.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import authenticateUser from "../middleware/authenticateUser.js";
-import upload from "../config/multerConfig.js";
+import uploadMiddleware from "../config/multerConfig.js";
 import {
   getUserByIdValidator,
   validateUserRegistration,
@@ -17,12 +16,12 @@ import {
 } from "../middleware/Validators/userRoutesValidator.js";
 
 const userRoutes = express.Router();
+const upload = uploadMiddleware("");
 
 userRoutes
   .route("/")
   .post(
     validateUserRegistration,
-    upload.single("profilePicture"),
     asyncHandler(userRegister)
   );
 

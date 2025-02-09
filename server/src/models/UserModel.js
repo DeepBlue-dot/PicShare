@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
-      select: false,
     },
     profilePicture: { type: String, default: "" },
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
@@ -61,6 +60,18 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.getPublicProfile = function () {
+  return {
+    username: this.username,
+    email: this.email,
+    profilePicture: this.profilePicture,
+    savedPosts: this.savedPosts,
+    isVerified: this.isVerified,
+    updatedAt: this.updatedAt,
+    createdAt: this.createdAt
+  };
+};
+
+userSchema.methods.getMyProfile = function () {
   return {
     username: this.username,
     email: this.email,

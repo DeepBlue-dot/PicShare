@@ -1,6 +1,5 @@
 import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 import decodeJWT from "../utils/decodeJwt.js";

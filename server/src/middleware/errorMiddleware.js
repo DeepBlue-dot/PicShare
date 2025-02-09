@@ -7,6 +7,11 @@ async function unknownURL(req, res, next) {
 
 async function errorHandler(err, req, res, next) {
 
+    if (typeof err === 'string') {
+        err = new Error(err); // Convert string to an Error object
+        err.statusCode = 500; // Or use an appropriate status code
+      }
+    
     err.statusCode=  err.statusCode || 500;
     err.status = err.status || 'error'
     

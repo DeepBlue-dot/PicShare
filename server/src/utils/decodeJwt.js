@@ -1,4 +1,5 @@
 import AppError from "./appError.js";
+import jwt from "jsonwebtoken";
 
 export default function decodeJWT(token) {
     try {

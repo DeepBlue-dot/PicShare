@@ -1,3 +1,4 @@
+
 export async function createBoard(req, res) {}
 
 export async function getAllBoard(req, res) {}

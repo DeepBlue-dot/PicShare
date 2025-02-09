@@ -46,8 +46,6 @@ async function userRegister(req, res, next) {
     process.env.JWT_SECRET
   );
 
-  req.body.profilePicture = req.file ? req.file.path : "";
-
   const user = await UserModel.create({
     ...req.body,
     verificationToken,
@@ -57,11 +55,11 @@ async function userRegister(req, res, next) {
 
   await sendMail(
     process.env.EMAIL_FROM,
-    req.body.email,
+    user.email,
     "Verify Your Account",
     "accountVerification",
     {
-      name: req.body.username || req.body.email,
+      name: user.username || user.email,
       verificationLink: verificationLink,
       company: "PicShare",
     }
@@ -83,7 +81,7 @@ async function updateUser(req, res) {
   }
   const user = await UserModel.findById(req.user);
 
-  const allowedUpdates = ["username", "email", "password", "profilePicture"];
+  const allowedUpdates = ["username", "email", "password"];
   const invalidFields = [];
 
   if (newUser.password || newUser.confirmPassword) {
