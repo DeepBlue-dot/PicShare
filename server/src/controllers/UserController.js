@@ -2,6 +2,8 @@ import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
+import path from "path";
+import fs from "fs";
 
 async function getAllUsers(req, res) {
   const users = await (
@@ -76,7 +78,7 @@ async function userRegister(req, res, next) {
 async function updateUser(req, res) {
   const newUser = req.body;
 
-  if (!newUser || Object.keys(newUser).length === 0) {
+  if ((!newUser || Object.keys(newUser).length === 0) && !req.file) {
     throw new AppError("No update data provided", 400);
   }
   const user = await UserModel.findById(req.user);
@@ -99,7 +101,23 @@ async function updateUser(req, res) {
   });
 
   if (req.file) {
-    user.profilePicture = req.file.path;
+    if (user.profilePicture) {
+      const oldPicturePath = path.join(
+        process.env.PWD,
+        "public",
+        "uploads",
+        "profile_pictures",
+        user.profilePicture
+      );
+
+      fs.unlink(oldPicturePath, (err) => {
+        if (err) {
+          console.error("Error deleting old profile picture:", err.message);
+        }
+      });
+    }
+
+    user.profilePicture = req.file.filename;
   }
 
   if (invalidFields.length > 0) {

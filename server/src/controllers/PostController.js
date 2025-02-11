@@ -1,6 +1,8 @@
 import PostModel from "../models/PostModel.js";
 
-export async function createPost(req, res) {}
+export async function createPost(req, res) {
+    
+}
 export async function getAllPost(req, res) {}
 export async function getPostById(req, res) {}
 export async function updatePost(req, res) {}

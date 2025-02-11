@@ -16,7 +16,7 @@ import {
 } from "../middleware/Validators/userRoutesValidator.js";
 
 const userRoutes = express.Router();
-const upload = uploadMiddleware("");
+const upload = uploadMiddleware("profile_pictures");
 
 userRoutes
   .route("/")
@@ -31,8 +31,9 @@ userRoutes
   .route("/me")
   .get(asyncHandler(getUser))
   .patch(
-    validateUserUpdate,
     upload.single("profilePicture"),
+
+    validateUserUpdate,
     asyncHandler(updateUser)
   )
   .delete(asyncHandler(deleteUser));

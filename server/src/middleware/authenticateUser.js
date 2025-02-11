@@ -3,7 +3,7 @@ import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import decodeJWT from "../utils/decodeJwt.js";
 
-async function authenticateUser(req, res, next) {
+export default async function authenticateUser(req, res, next) {
   const jwtToken = req.cookies.jwt;
 
   if (!jwtToken)
@@ -26,4 +26,3 @@ async function authenticateUser(req, res, next) {
     next();
 }
 
-export default authenticateUser;

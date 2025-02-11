@@ -1,21 +1,32 @@
 import { validationResult } from "express-validator";
-import AppError from "../utils/appError.js";
+import fs from "fs";
 
-export const validateRequest = (req, res, next) => {
+export function validateRequest(req, res, next) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const errorDetails = errors.array().reduce((acc, err) => {
-      acc[err.path] = err.msg; 
-      return acc;
-    }, {});
+    if (req.file || req.files) {
+      // Handle single file upload
+      if (req.file) {
+        const filePath = req.file.path;
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Failed to delete file:", err);
+          }
+        });
+      }
 
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Validation errors',
-      errors: errorDetails, 
-    });
+      const errorDetails = errors.array().reduce((acc, err) => {
+        acc[err.path] = err.msg;
+        return acc;
+      }, {});
+
+      return res.status(400).json({
+        status: "fail",
+        message: "Validation errors",
+        errors: errorDetails,
+      });
+    }
   }
-
   next();
-};
+}
