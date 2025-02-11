@@ -31,6 +31,12 @@ export const uploadFileToCloudinary = async (file, publicId) => {
 
 export const deleteFileFromCloudinary = async (publicId) => {
   try {
+    const publicId = extractPublicId(secureUrl);
+
+    if (!publicId) {
+      throw new Error("Invalid Cloudinary URL. Cannot extract public_id.");
+    }
+
     const result = await cloudinary.uploader.destroy(publicId, {
       resource_type: 'auto'
     });
@@ -38,5 +44,17 @@ export const deleteFileFromCloudinary = async (publicId) => {
   } catch (error) {
     console.error('Cloudinary delete error:');
     throw error;
+  }
+};
+
+const extractPublicId = (secureUrl) => {
+  try {
+    const urlParts = secureUrl.split("/");
+    const fileName = urlParts[urlParts.length - 1]; // Get last part of the URL
+    const publicId = fileName.split(".")[0]; // Remove file extension
+    return publicId;
+  } catch (error) {
+    console.error("Error extracting public ID:", error);
+    return null;
   }
 };

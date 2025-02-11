@@ -13,7 +13,9 @@ async function userLogin(req, res) {
     throw new AppError("Incorrect email or password", 401);
   }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 
+  });
 
   const cookieOptions = {
     expires: new Date(

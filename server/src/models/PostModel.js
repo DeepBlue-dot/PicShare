@@ -54,25 +54,43 @@ const postSchema = new mongoose.Schema(
   }
 );
 
-postSchema.methods.getPostInfo = function () {
+postSchema.methods.getPostInfo = function (userId) {
   return {
     id: this._id,
     title: this.title,
     description: this.description,
     imageUrl: this.imageUrl,
     createdBy: this.createdBy,
-    likes: this.likes.length, // Return the number of likes
-    comments: this.comments.map((comment) => ({
-      id: comment._id,
-      text: comment.text,
-      commentedBy: comment.commentedBy,
-      createdAt: comment.createdAt,
-    })),
-    tags: this.tags,
+    likes: {
+      count: this.likes.length,
+      liked: userId && this.likes.length > 0
+        ? this.likes.some((like) => like?.toString() === userId?.toString())
+        : false,
+    },
+    comments: {
+      count: this.comments.length,
+      commented: userId && this.comments.length > 0
+        ? this.comments.some((comment) => comment.userId?.toString() === userId?.toString())
+        : false,
+    },
+    tags: this.tags || [],
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
 };
+
+postSchema.methods.toggleLike = async function (userId) {
+  const hasLiked = this.likes.some((id) => id.toString() === userId.toString());
+
+  if (hasLiked) {
+    this.likes = this.likes.filter((id) => id.toString() !== userId.toString());
+  } else {
+    this.likes.push(userId);
+  }
+
+  await this.save(); 
+}
+
 
 postSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {

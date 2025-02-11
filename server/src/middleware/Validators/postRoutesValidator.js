@@ -45,3 +45,71 @@ export const createPostValidator = [
 
   validateRequest,
 ];
+
+export const getPostByIdValidator = [
+  param("id")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+  validateRequest,
+];
+
+export const updatePostValidator = [
+  (req, res, next) => {
+    if ((!req.body || Object.keys(req.body).length === 0) && !req.file) {
+      throw new Error("No update data provided");
+    }
+    next();
+  },
+
+  (req, res, next) => {
+    const invalidProperties = ["comments", "likes", "createdBy", "imageUrl"];
+    const invalidFields = Object.keys(req.body).filter((field) =>
+      invalidProperties.includes(field)
+    );
+
+    if (invalidFields.length > 0) {
+      throw new Error(`Invalid properties: ${invalidFields.join(", ")}`);
+    }
+    next();
+  },
+
+  // Validate the title
+  body("title")
+    .optional()
+    .notEmpty()
+    .withMessage("A post must have a title.")
+    .isLength({ max: 100 })
+    .withMessage("Title cannot be longer than 100 characters."),
+
+  // Validate the description (optional)
+  body("description")
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage("Description cannot be longer than 1000 characters."),
+
+  // Validate the tags (optional)
+  body("tags")
+    .optional()
+    .isArray({ max: 10 })
+    .withMessage("A post cannot have more than 10 tags.")
+    .custom((tags) => {
+      if (tags) {
+        return tags.every((tag) => typeof tag === "string" && tag.length <= 20);
+      }
+      return true;
+    })
+    .withMessage("Each tag must be a string and no longer than 20 characters."),
+
+  validateRequest,
+];
+
+export const likePostValidator = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+  validateRequest,
+];

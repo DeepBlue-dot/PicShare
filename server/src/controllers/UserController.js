@@ -3,7 +3,6 @@ import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 import cloudinary from "cloudinary";
-import { uploadFileToCloudinary } from "../utils/cloudinaryUtils.js";
 
 async function getAllUsers(req, res) {
   const users = await (
@@ -77,12 +76,6 @@ async function userRegister(req, res, next) {
 
 
 async function updateUser(req, res) {
-  cloudinary.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-
   const newUser = req.body;
   const user = await UserModel.findById(req.user);
 
@@ -94,7 +87,7 @@ async function updateUser(req, res) {
   });
 
   if (req.file) {
-    const publicId = `user_profile_${user._id}`;
+    const publicId = `${user._id}`;
     const uploadResult = await uploadFileToCloudinary(req.file, publicId);
     user.profilePicture = uploadResult.secure_url;
   }
@@ -112,7 +105,8 @@ async function updateUser(req, res) {
 }
 
 async function deleteUser(req, res) {
-  await UserModel.findByIdAndDelete(req.user);
+  const user = await UserModel.findByIdAndDelete(req.user);
+  await deleteFileFromCloudinary(user.profilePicture);
 
   res.cookie("jwt", "loggedout", {
     expires: new Date(Date.now() - 1000),
