@@ -1,8 +1,20 @@
 import PostModel from "../models/PostModel.js";
+import { uploadFileToCloudinary } from "../utils/cloudinaryUtils.js";
+
 
 export async function createPost(req, res) {
-    
+  const newPost = await PostModel.create({...req.body, createdBy: req.user, imageUrl: "-"});
+  const uploadResult = await uploadFileToCloudinary(req.file, newPost._id);
+  newPost.imageUrl = uploadResult.secure_url;
+  await newPost.save()
+  res.status(201).json({
+    status: "success",
+    data: {
+      post: newPost.getPostInfo(),
+    },
+  })
 }
+
 export async function getAllPost(req, res) {}
 export async function getPostById(req, res) {}
 export async function updatePost(req, res) {}

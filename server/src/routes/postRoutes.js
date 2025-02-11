@@ -18,15 +18,21 @@ import {
 } from "../controllers/PostController.js";
 import authenticateUser from "../middleware/authenticateUser.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import uploadMiddleware from "../config/multerConfig.js";
-
+import upload from "../config/multerConfig.js";
+import { createPostValidator } from "../middleware/Validators/postRoutesValidator.js";
 
 const postRoutes = express.Router();
 
 postRoutes
   .route("/")
   .get(asyncHandler(getAllPost))
-  .post(asyncHandler(authenticateUser), asyncHandler(createPost));
+  .post(
+    asyncHandler(authenticateUser),
+    upload.single("postImage"),
+    createPostValidator,
+    asyncHandler(createPost)
+  );
+
 postRoutes.route("/:id").get(getPostById).patch(updatePost).delete(deletePost);
 postRoutes.route("/:postId/like").post(likePost).delete(unlikePost);
 postRoutes.route("/:postId/comment").post(addComment).get(getComments);

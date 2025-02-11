@@ -54,6 +54,26 @@ const postSchema = new mongoose.Schema(
   }
 );
 
+postSchema.methods.getPostInfo = function () {
+  return {
+    id: this._id,
+    title: this.title,
+    description: this.description,
+    imageUrl: this.imageUrl,
+    createdBy: this.createdBy,
+    likes: this.likes.length, // Return the number of likes
+    comments: this.comments.map((comment) => ({
+      id: comment._id,
+      text: comment.text,
+      commentedBy: comment.commentedBy,
+      createdAt: comment.createdAt,
+    })),
+    tags: this.tags,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+};
+
 postSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
     const message = Object.keys(error.keyValue)

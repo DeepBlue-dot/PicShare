@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
-    profilePicture: { type: String, default: "" },
+    profilePicture: { type: String, default: "https://res.cloudinary.com/dt5ul7aww/image/upload/v1739269736/cvgdfcqjdfjsdsdv01f6.jpg" },
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String, default: "" },
