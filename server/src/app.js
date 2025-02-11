@@ -14,12 +14,16 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/public/profilePics", express.static(path.join(process.env.PWD, "public", "uploads", "profile_pictures")));
+app.use("/public/", express.static(path.join(process.env.PWD, "public")));
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/board", boardRoutes);
 app.use("/api/auth", authRoutes);
-app.all('*', unknownURL)
-app.use(errorHandler)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(process.env.PWD, "public", "index.html"));
+});
+
+app.all("*", unknownURL);
+app.use(errorHandler);
 
 export default app;

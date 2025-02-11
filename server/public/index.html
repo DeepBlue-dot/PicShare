@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinClone - Pinterest-like API</title>
+    <link rel="stylesheet" href="public/assets/css/styles.css">
+    <link rel="icon" href="data:,"> <!-- Prevent favicon request -->
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>PinClone API</h1>
+            <p>A Pinterest-like REST API built with Node.js, Express & MongoDB</p>
+            <div class="tech-badges">
+                <span class="badge">Node.js</span>
+                <span class="badge">Express</span>
+                <span class="badge">MongoDB</span>
+                <span class="badge">JWT Auth</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>📚 Project Overview</h2>
+            <p>PinClone is a feature-rich RESTful API that powers Pinterest-like applications. Key features include:</p>
+            <ul class="feature-list">
+                <li>🔐 JWT Authentication & Authorization</li>
+                <li>🖼️ Image Uploads with Cloudinary Integration</li>
+                <li>💬 Comments & Likes System</li>
+                <li>📌 Board Organization & Collaboration</li>
+                <li>🔍 Search & Filtering</li>
+                <li>📈 Pagination & Rate Limiting</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>🔧 Core Endpoints</h2>
+            <div class="endpoint-grid">
+                <!-- Authentication -->
+                <article class="endpoint">
+                    <h3>🔑 Authentication</h3>
+                    <div class="method post">POST</div><code>/api/auth/register</code>
+                    <div class="method post">POST</div><code>/api/auth/login</code>
+                    <div class="method get">GET</div><code>/api/auth/me</code>
+                </article>
+
+                <!-- Posts -->
+                <article class="endpoint">
+                    <h3>📮 Posts</h3>
+                    <div class="method get">GET</div><code>/api/posts</code>
+                    <div class="method post">POST</div><code>/api/posts</code>
+                    <div class="method get">GET</div><code>/api/posts/{id}</code>
+                    <div class="method put">PUT</div><code>/api/posts/{id}</code>
+                    <div class="method delete">DELETE</div><code>/api/posts/{id}</code>
+                </article>
+
+                <!-- Users -->
+                <article class="endpoint">
+                    <h3>👤 Users</h3>
+                    <div class="method get">GET</div><code>/api/users/{id}</code>
+                    <div class="method get">GET</div><code>/api/users/{id}/posts</code>
+                    <div class="method get">GET</div><code>/api/users/{id}/boards</code>
+                </article>
+
+                <!-- Boards -->
+                <article class="endpoint">
+                    <h3>📋 Boards</h3>
+                    <div class="method post">POST</div><code>/api/boards</code>
+                    <div class="method get">GET</div><code>/api/boards/{id}</code>
+                    <div class="method post">POST</div><code>/api/boards/{id}/posts</code>
+                </article>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>🚀 Quick Start</h2>
+            <div class="tabs">
+                <button class="tab active" data-tab="curl">cURL</button>
+                <button class="tab" data-tab="js">JavaScript</button>
+                <button class="tab" data-tab="python">Python</button>
+            </div>
+
+            <div class="tab-content active" data-tab="curl">
+                <pre><code>curl -X POST https://api.pinclone.com/posts \
+-H "Authorization: Bearer YOUR_TOKEN" \
+-F "title=Sunset" \
+-F "description=Beautiful beach sunset" \
+-F "image=@sunset.jpg"</code></pre>
+            </div>
+
+            <div class="tab-content" data-tab="js">
+                <pre><code class="language-js">const response = await fetch('https://api.pinclone.com/posts', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: formData
+});</code></pre>
+            </div>
+
+            <div class="tab-content" data-tab="python">
+                <pre><code class="language-python">import requests
+
+response = requests.post(
+    'https://api.pinclone.com/posts',
+    headers={'Authorization': 'Bearer YOUR_TOKEN'},
+    files={'image': open('sunset.jpg', 'rb')},
+    data={'title': 'Sunset', 'description': 'Beautiful beach sunset'}
+)</code></pre>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>⚙️ Configuration</h2>
+            <pre><code class="language-env"># .env.example
+PORT=3000
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your_jwt_secret
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...</code></pre>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <p>© 2023 PinClone API. MIT Licensed</p>
+                <div class="social-links">
+                    <a href="https://github.com/yourusername" target="_blank">GitHub</a>
+                    <a href="/docs" target="_blank">Documentation</a>
+                    <a href="mailto:support@pinclone.com">Support</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <button id="theme-toggle">🌓 Toggle Theme</button>
+    <script src="public/assets/js/main.js"></script>
+</body>
+</html>
