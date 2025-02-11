@@ -26,7 +26,7 @@ export async function getAllPost(req, res) {
   const posts = await PostModel.find();
   res.status(200).json({
     status: "success",
-    length: users.length,
+    length: posts.length,
     data: {
       posts,
     },
