@@ -105,11 +105,43 @@ export const updatePostValidator = [
   validateRequest,
 ];
 
-export const likePostValidator = [
+export const PostValidator = [
   param("postId")
     .notEmpty()
     .withMessage("post ID is required")
     .isMongoId()
     .withMessage("Invalid post ID"),
+  validateRequest,
+];
+
+export const addCommentValidator = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+  validateRequest,
+
+  body("text")
+    .trim()
+    .notEmpty()
+    .withMessage("A comment cant be empty.")
+    .isLength({ max: 100 })
+    .withMessage("comment cannot be longer than 100 characters."),
+];
+
+export const deleteComment = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+  validateRequest,
+
+  param("commentId")
+    .notEmpty()
+    .withMessage("comment ID is required")
+    .isMongoId()
+    .withMessage("Invalid comment ID"),
   validateRequest,
 ];

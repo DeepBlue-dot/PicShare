@@ -19,9 +19,10 @@ import authenticateUser from "../middleware/authenticateUser.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import upload from "../config/multerConfig.js";
 import {
+  addCommentValidator,
   createPostValidator,
   getPostByIdValidator,
-  likePostValidator,
+  PostValidator,
   updatePostValidator,
 } from "../middleware/Validators/postRoutesValidator.js";
 
@@ -50,16 +51,16 @@ postRoutes
 
 postRoutes
   .route("/:postId/like")
-  .post(authenticateUser, likePostValidator, likePost)
+  .post(authenticateUser, PostValidator, likePost);
 
 postRoutes
   .route("/:postId/comment")
-  .post(authenticateUser, addComment)
-  .get(authenticateUser, getComments);
+  .post(authenticateUser, addCommentValidator, addComment)
+  .get(getComments);
 
 postRoutes
   .route("/:postId/comment/:commentId")
-  .delete(authenticateUser, deleteComment)
+  .delete(authenticateUser, deleteComment,deleteComment)
   .patch(authenticateUser, editComment);
 
 postRoutes.route("/user/me").get(authenticateUser, getUserPosts);

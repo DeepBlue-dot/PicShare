@@ -23,14 +23,14 @@ export async function createPost(req, res) {
 }
 
 export async function getAllPost(req, res) {
-  const posts = await PostModel.find()
+  const posts = await PostModel.find();
   res.status(200).json({
     status: "success",
     length: users.length,
     data: {
-      posts
-    }
-  })
+      posts,
+    },
+  });
 }
 
 export async function getPostById(req, res) {
@@ -88,20 +88,77 @@ export async function likePost(req, res) {
     throw new AppError("Post not found", 404);
   }
 
-  await post.toggleLike(req.user)
+  await post.toggleLike(req.user);
 
-  return res.status(200).json({
+  res.status(200).json({
     status: "success",
     data: {
-      post : post.getPostInfo(req.user)
+      post: post.getPostInfo(req.user),
     },
   });
 }
 
-export async function getComments(req, res) {}
+export async function getComments(req, res) {
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
 
-export async function addComment(req, res) {}
-export async function deleteComment(req, res) {}
+  res.status(200).json({
+    status: "success",
+    data: {
+      comments: post.comments,
+    },
+  });
+}
+
+export async function addComment(req, res) {
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+  const comments = (await post.addComment(req.body.text, req.user)).comments;
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      comments: comments,
+    },
+  });
+}
+
+export async function deleteComment(req, res, next) {
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  const commentIndex = post.comments.findIndex(
+    (comment) => comment._id.toString() === req.params.commentId
+  );
+
+  if (commentIndex === -1) {
+    throw new AppError("Comment not found", 404);
+  }
+
+  // Check if the user is the creator of the post or the commenter
+  const comment = post.comments[commentIndex];
+  if (
+    post.createdBy.toString() === req.user.toString() ||
+    comment.commentedBy.toString() === req.user.toString()
+  ) {
+    // Remove the comment from the comments array
+    post.comments.splice(commentIndex, 1);
+    await post.save();
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  } else {
+    throw new AppError("You are not authorized to delete this comment", 403);
+  }
+}
 export async function editComment(req, res) {}
 export async function getPostsbyUser(req, res) {}
 export async function getUserPosts(req, res) {}

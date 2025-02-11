@@ -63,15 +63,19 @@ postSchema.methods.getPostInfo = function (userId) {
     createdBy: this.createdBy,
     likes: {
       count: this.likes.length,
-      liked: userId && this.likes.length > 0
-        ? this.likes.some((like) => like?.toString() === userId?.toString())
-        : false,
+      liked:
+        userId && this.likes.length > 0
+          ? this.likes.some((like) => like?.toString() === userId?.toString())
+          : false,
     },
     comments: {
       count: this.comments.length,
-      commented: userId && this.comments.length > 0
-        ? this.comments.some((comment) => comment.userId?.toString() === userId?.toString())
-        : false,
+      commented:
+        userId && this.comments.length > 0
+          ? this.comments.some(
+              (comment) => comment.userId?.toString() === userId?.toString()
+            )
+          : false,
     },
     tags: this.tags || [],
     createdAt: this.createdAt,
@@ -88,9 +92,23 @@ postSchema.methods.toggleLike = async function (userId) {
     this.likes.push(userId);
   }
 
-  await this.save(); 
-}
+  await this.save();
+};
 
+postSchema.methods.addComment = async function (text, commentedBy) {
+  this.comments.push({
+    text,
+    commentedBy,
+  });
+
+  return await this.save();
+};
+
+postSchema.methods.findCommentByUser = function (userId) {
+  return this.comments.filter(
+    (comment) => comment.commentedBy.toString() === userId.toString()
+  );
+};
 
 postSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
