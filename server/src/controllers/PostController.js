@@ -141,13 +141,11 @@ export async function deleteComment(req, res, next) {
     throw new AppError("Comment not found", 404);
   }
 
-  // Check if the user is the creator of the post or the commenter
   const comment = post.comments[commentIndex];
   if (
     post.createdBy.toString() === req.user.toString() ||
     comment.commentedBy.toString() === req.user.toString()
   ) {
-    // Remove the comment from the comments array
     post.comments.splice(commentIndex, 1);
     await post.save();
 
@@ -159,11 +157,46 @@ export async function deleteComment(req, res, next) {
     throw new AppError("You are not authorized to delete this comment", 403);
   }
 }
-export async function editComment(req, res) {}
+
+export async function editComment(req, res, next) {
+
+    const post = await PostModel.findById(req.params.postId);
+    if (!post) {
+      throw new AppError("Post not found", 404);
+    }
+
+    const commentIndex = post.comments.findIndex(
+      (comment) => comment._id.toString() === req.params.commentId
+    );
+    if (commentIndex === -1) {
+      throw new AppError("Comment not found", 404);
+    }
+
+    const comment = post.comments[commentIndex];
+
+    if (comment.commentedBy.toString() !== req.user.toString()) {
+      throw new AppError("You are not authorized to edit this comment", 403);
+    }
+
+    post.comments[commentIndex].text = req.body.text; 
+    await post.save();
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        comments: post.comments[commentIndex], // Return the updated comment
+      },
+    });
+}
+
+export async function getUserComments(req, res) {
+
+}
+
+export async function getCommentsbyUser(req, res) {}
 export async function getPostsbyUser(req, res) {}
 export async function getUserPosts(req, res) {}
 export async function searchPosts(req, res) {}
-export async function commentsforPost(req, res) {}
 export async function savePost(req, res) {}
 export async function unsavePost(req, res) {}
 export async function getSavedPosts(req, res) {}

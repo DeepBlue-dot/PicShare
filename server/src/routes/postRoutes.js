@@ -7,9 +7,11 @@ import {
   editComment,
   getAllPost,
   getComments,
+  getCommentsbyUser,
   getPostById,
   getPostsbyUser,
   getSavedPosts,
+  getUserComments,
   getUserPosts,
   likePost,
   searchPosts,
@@ -23,6 +25,7 @@ import {
   createPostValidator,
   getPostByIdValidator,
   PostValidator,
+  updateCommentValidator,
   updatePostValidator,
 } from "../middleware/Validators/postRoutesValidator.js";
 
@@ -60,14 +63,18 @@ postRoutes
 
 postRoutes
   .route("/:postId/comment/:commentId")
-  .delete(authenticateUser, deleteComment,deleteComment)
-  .patch(authenticateUser, editComment);
+  .delete(authenticateUser, deleteComment, deleteComment)
+  .patch(authenticateUser, updateCommentValidator, editComment);
 
 postRoutes.route("/user/me").get(authenticateUser, getUserPosts);
 
+postRoutes.route("/user/me/comments").get(authenticateUser, getUserComments);
+
 postRoutes.route("/user/me/saved-posts").get(authenticateUser, getSavedPosts);
 
-postRoutes.route("/user/:userId").get(authenticateUser, getPostsbyUser);
+postRoutes.route("/user/:userId").get(getPostsbyUser);
+
+postRoutes.route("/user/:userId/comments").get(getCommentsbyUser);
 
 postRoutes.route("search").get(searchPosts);
 

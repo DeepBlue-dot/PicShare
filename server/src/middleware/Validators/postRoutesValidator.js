@@ -111,11 +111,51 @@ export const PostValidator = [
     .withMessage("post ID is required")
     .isMongoId()
     .withMessage("Invalid post ID"),
+
   validateRequest,
 ];
 
 export const addCommentValidator = [
   param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+
+  body("text")
+    .trim()
+    .notEmpty()
+    .withMessage("A comment cant be empty.")
+    .isLength({ max: 100 })
+    .withMessage("comment cannot be longer than 100 characters."),
+
+  validateRequest,
+];
+
+export const deleteComment = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+
+  param("commentId")
+    .notEmpty()
+    .withMessage("comment ID is required")
+    .isMongoId()
+    .withMessage("Invalid comment ID"),
+  validateRequest,
+];
+
+export const updateCommentValidator = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+  validateRequest,
+
+  param("commentId")
     .notEmpty()
     .withMessage("post ID is required")
     .isMongoId()
@@ -128,20 +168,6 @@ export const addCommentValidator = [
     .withMessage("A comment cant be empty.")
     .isLength({ max: 100 })
     .withMessage("comment cannot be longer than 100 characters."),
-];
 
-export const deleteComment = [
-  param("postId")
-    .notEmpty()
-    .withMessage("post ID is required")
-    .isMongoId()
-    .withMessage("Invalid post ID"),
-  validateRequest,
-
-  param("commentId")
-    .notEmpty()
-    .withMessage("comment ID is required")
-    .isMongoId()
-    .withMessage("Invalid comment ID"),
   validateRequest,
 ];
