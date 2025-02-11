@@ -5,6 +5,7 @@ import {
   verifyAccount,
   resetPasswordGenerator,
   resetPasswordHandler,
+  regenerateVerificationToken,
 } from "../controllers/authController.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import {
@@ -13,6 +14,7 @@ import {
   userLoginValidator,
   verifyAccountValidator,
 } from "../middleware/Validators/authRoutesValidator.js";
+import authenticateUser from "../middleware/authenticateUser.js";
 
 const authRoutes = express.Router();
 
@@ -24,9 +26,12 @@ authRoutes
   .route("/verify/:token")
   .get(verifyAccountValidator, asyncHandler(verifyAccount));
 
+authRoutes
+  .route("/verify")
+  .get(authenticateUser, asyncHandler(regenerateVerificationToken));
+
 authRoutes.route("/resetPassword").post(
   resetPasswordGeneratorValidator,
-
   asyncHandler(resetPasswordGenerator)
 );
 

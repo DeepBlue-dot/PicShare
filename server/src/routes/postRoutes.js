@@ -20,7 +20,6 @@ import authenticateUser from "../middleware/authenticateUser.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import uploadMiddleware from "../config/multerConfig.js";
 
-const upload = uploadMiddleware("posts")
 
 const postRoutes = express.Router();
 

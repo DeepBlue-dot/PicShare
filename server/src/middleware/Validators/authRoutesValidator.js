@@ -21,7 +21,9 @@ export const resetPasswordHandlerValidator = [
   param("token").notEmpty(),
   body("password")
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
+    .withMessage("Password must be at least 8 characters long")
+    .custom((value, { req }) => value === req.body.confirmPassword)
+    .withMessage("Passwords do not match"),
   body("confirmPassword")
     .notEmpty()
     .withMessage("Confirm Password is required")

@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema(
     profilePicture: { type: String, default: "" },
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String, default: "" },
+    resetToken: { type: String, default: "" },
+    resetTokenExpires: { type: Date, default: null },
   },
   {
     timestamps: true,
@@ -59,7 +62,7 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.methods.getPublicProfile = function () {
+userSchema.methods.getMyProfile = function () {
   return {
     username: this.username,
     email: this.email,
@@ -67,11 +70,11 @@ userSchema.methods.getPublicProfile = function () {
     savedPosts: this.savedPosts,
     isVerified: this.isVerified,
     updatedAt: this.updatedAt,
-    createdAt: this.createdAt
+    createdAt: this.createdAt,
   };
 };
 
-userSchema.methods.getMyProfile = function () {
+userSchema.methods.getPublicProfile = function () {
   return {
     username: this.username,
     email: this.email,
@@ -84,9 +87,7 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-// Indexes for faster queries
 userSchema.index({ username: 1, email: 1 });
-
 const UserModel = mongoose.model("User", userSchema);
 
 export default UserModel;

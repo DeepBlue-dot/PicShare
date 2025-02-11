@@ -38,8 +38,8 @@ async function verifyAccount(req, res) {
   const decoded = decodeJWT(req.params.token);
 
   const user = await UserModel.findOneAndUpdate(
-    { email: decoded.email },
-    { isVerified: true },
+    { email: decoded.email, verificationToken: req.params.token },
+    { isVerified: true, verificationToken: "" },
     { new: true, runValidators: true }
   );
 
@@ -75,6 +75,10 @@ async function resetPasswordGenerator(req, res) {
 
   const resetLink = `${process.env.FRONTEND_URL}/api/auth/resetPassword/${token}`;
 
+  user.resetToken = token;
+  user.resetTokenExpires = Date.now() + 3600000; // 1 hour from now
+  await user.save();
+
   await sendMail(
     process.env.EMAIL_FROM,
     user.email,
@@ -87,7 +91,6 @@ async function resetPasswordGenerator(req, res) {
     }
   );
 
-  // Send success response
   res.status(200).json({
     status: "success",
     message: "Password reset token sent to your email.",
@@ -96,21 +99,64 @@ async function resetPasswordGenerator(req, res) {
 
 async function resetPasswordHandler(req, res) {
   const { token } = req.params;
-  const { password, confirmPassword } = req.body;
+  const { password } = req.body;
 
-  const decoded = decodeJWT(token)
+  const decoded = decodeJWT(token);
 
-  const user = await UserModel.findById(decoded.id);
+  const user = await UserModel.findOne({
+    _id: decoded.id,
+    resetToken: token,
+    resetTokenExpires: { $gt: Date.now() },
+  });
+
   if (!user) {
-    throw new AppError("Invalid token. Please log in again.", 401);
+    throw new AppError("Invalid or expired token. Please log in again.", 401);
   }
 
   user.password = password;
+  user.resetToken = "";
+  user.resetTokenExpires = null;
   await user.save();
 
   res.status(200).json({
     status: "success",
     message: "Password changed successfully.",
+  });
+}
+
+async function regenerateVerificationToken(req, res) {
+
+  const user = await UserModel.findById(req.user);
+
+  if (user.isVerified) {
+    throw new AppError("User is already verified.", 400);
+  }
+
+  const newVerificationToken = jwt.sign(
+    { email: user.email },
+    process.env.JWT_SECRET
+  );
+
+  user.verificationToken = newVerificationToken;
+  await user.save();
+
+  const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify/${newVerificationToken}`;
+
+  await sendMail(
+    process.env.EMAIL_FROM,
+    user.email,
+    "Verify Your Account",
+    "accountVerification",
+    {
+      name: user.username || user.email,
+      verificationLink: verificationLink,
+      company: "PicShare",
+    }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: "A new verification token has been sent to your email.",
   });
 }
 
@@ -120,4 +166,5 @@ export {
   verifyAccount,
   resetPasswordHandler,
   resetPasswordGenerator,
+  regenerateVerificationToken
 };

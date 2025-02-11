@@ -8,7 +8,7 @@ import {
 } from "../controllers/UserController.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import authenticateUser from "../middleware/authenticateUser.js";
-import uploadMiddleware from "../config/multerConfig.js";
+import upload from "../config/multerConfig.js";
 import {
   getUserByIdValidator,
   validateUserRegistration,
@@ -16,7 +16,6 @@ import {
 } from "../middleware/Validators/userRoutesValidator.js";
 
 const userRoutes = express.Router();
-const upload = uploadMiddleware("profile_pictures");
 
 userRoutes
   .route("/")
@@ -32,7 +31,6 @@ userRoutes
   .get(asyncHandler(getUser))
   .patch(
     upload.single("profilePicture"),
-
     validateUserUpdate,
     asyncHandler(updateUser)
   )
