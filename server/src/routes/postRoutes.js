@@ -82,6 +82,6 @@ postRoutes
   .route("/user/:userId/comments/:postId")
   .get(getCommentsbyUserValidator, asyncHandler(getCommentsbyUser));
 
-postRoutes.route("search").get(asyncHandler(searchPosts));
+postRoutes.route("/search").get(asyncHandler(searchPosts));
 
 export default postRoutes;
