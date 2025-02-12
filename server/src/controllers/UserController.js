@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 import cloudinary from "cloudinary";
 
-async function getAllUsers(req, res) {
+export async function getAllUsers(req, res) {
   const users = await (
     await UserModel.find()
   ).map((user) => user.getPublicProfile());
@@ -18,7 +18,7 @@ async function getAllUsers(req, res) {
   });
 }
 
-async function getUserById(req, res, next) {
+export async function getUserById(req, res, next) {
   const user = UserModel.findById(req.params.id);
   if (!user) throw AppError("user not found", 400);
 
@@ -30,7 +30,7 @@ async function getUserById(req, res, next) {
   });
 }
 
-async function getUser(req, res) {
+export async function getUser(req, res) {
   const user = await UserModel.findById(req.user);
 
   res.status(201).json({
@@ -41,7 +41,7 @@ async function getUser(req, res) {
   });
 }
 
-async function userRegister(req, res, next) {
+export async function userRegister(req, res, next) {
   const verificationToken = jwt.sign(
     { email: req.body.email },
     process.env.JWT_SECRET
@@ -74,8 +74,7 @@ async function userRegister(req, res, next) {
   });
 }
 
-
-async function updateUser(req, res) {
+export async function updateUser(req, res) {
   const newUser = req.body;
   const user = await UserModel.findById(req.user);
 
@@ -104,7 +103,7 @@ async function updateUser(req, res) {
   });
 }
 
-async function deleteUser(req, res) {
+export async function deleteUser(req, res) {
   const user = await UserModel.findByIdAndDelete(req.user);
   await deleteFileFromCloudinary(user.profilePicture);
 
@@ -119,11 +118,31 @@ async function deleteUser(req, res) {
   });
 }
 
-export {
-  getUserById,
-  getAllUsers,
-  userRegister,
-  getUser,
-  updateUser,
-  deleteUser,
-};
+export async function savePost(req, res) {
+  const user = await UserModel.findById(req.user);
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  await user.toggleSavePost(post._id);
+
+  res.status(200).json({
+    status: "success",
+    message: {
+      post: post.getPostInfo(req.user)
+    },
+  });
+}
+
+export async function getSavedPosts(req, res) {
+    const user = await UserModel.findById(req.user).populate("savedPosts");
+
+    res.status(200).json({
+      status: "success",
+      length: user.savedPosts.length,
+      data: { savedPosts: (user.savedPosts).map((post)=>post.getPostInfo(req.user)) },
+    });
+}
+
+

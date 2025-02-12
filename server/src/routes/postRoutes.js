@@ -10,7 +10,6 @@ import {
   getCommentsbyUser,
   getPostById,
   getPostsbyUser,
-  getSavedPosts,
   getUserComments,
   getUserPosts,
   likePost,
@@ -23,7 +22,10 @@ import upload from "../config/multerConfig.js";
 import {
   addCommentValidator,
   createPostValidator,
+  deleteCommentValidator,
+  getCommentsbyUserValidator,
   getPostByIdValidator,
+  getPostsbyUserValidator,
   PostValidator,
   updateCommentValidator,
   updatePostValidator,
@@ -48,34 +50,38 @@ postRoutes
     authenticateUser,
     upload.single("postImage"),
     updatePostValidator,
-    updatePost
+    asyncHandler(updatePost)
   )
-  .delete(authenticateUser, getPostByIdValidator, deletePost);
+  .delete(authenticateUser, getPostByIdValidator, asyncHandler(deletePost));
 
 postRoutes
   .route("/:postId/like")
-  .post(authenticateUser, PostValidator, likePost);
+  .post(authenticateUser, PostValidator, asyncHandler(likePost));
 
 postRoutes
   .route("/:postId/comment")
-  .post(authenticateUser, addCommentValidator, addComment)
-  .get(getComments);
+  .post(authenticateUser, addCommentValidator, asyncHandler(addComment))
+  .get(asyncHandler(getComments));
 
 postRoutes
   .route("/:postId/comment/:commentId")
-  .delete(authenticateUser, deleteComment, deleteComment)
-  .patch(authenticateUser, updateCommentValidator, editComment);
+  .delete(authenticateUser, deleteCommentValidator, asyncHandler(deleteComment))
+  .patch(authenticateUser, updateCommentValidator, asyncHandler(editComment));
 
-postRoutes.route("/user/me").get(authenticateUser, getUserPosts);
+postRoutes.route("/user/me").get(authenticateUser, asyncHandler(getUserPosts));
 
-postRoutes.route("/user/me/comments").get(authenticateUser, getUserComments);
+postRoutes
+  .route("/user/me/comments/:postId")
+  .get(authenticateUser, PostValidator, asyncHandler(getUserComments));
 
-postRoutes.route("/user/me/saved-posts").get(authenticateUser, getSavedPosts);
+postRoutes
+  .route("/user/:userId")
+  .get(getPostsbyUserValidator, asyncHandler(getPostsbyUser));
 
-postRoutes.route("/user/:userId").get(getPostsbyUser);
+postRoutes
+  .route("/user/:userId/comments/:postId")
+  .get(getCommentsbyUserValidator, asyncHandler(getCommentsbyUser));
 
-postRoutes.route("/user/:userId/comments").get(getCommentsbyUser);
-
-postRoutes.route("search").get(searchPosts);
+postRoutes.route("search").get(asyncHandler(searchPosts));
 
 export default postRoutes;

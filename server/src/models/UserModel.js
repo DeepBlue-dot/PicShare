@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+
 userSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
     const message = Object.keys(error.keyValue)
@@ -86,6 +87,19 @@ userSchema.methods.getPublicProfile = function () {
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
+
+userSchema.methods.toggleSavePost = async function (postId) {
+  const index = this.savedPosts.findIndex((id) => id.toString() === postId.toString());
+
+  if (index !== -1) {
+    this.savedPosts.splice(index, 1);
+  } else {
+    this.savedPosts.push(postId);
+  }
+
+  return await this.save();
+};
+
 
 userSchema.index({ username: 1, email: 1 });
 const UserModel = mongoose.model("User", userSchema);

@@ -1,4 +1,5 @@
 import PostModel from "../models/PostModel.js";
+import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import {
   deleteFileFromCloudinary,
@@ -190,13 +191,69 @@ export async function editComment(req, res, next) {
 }
 
 export async function getUserComments(req, res) {
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      comments: post.findCommentByUser(req.user), // Return the updated comment
+    },
+  });
 
 }
 
-export async function getCommentsbyUser(req, res) {}
-export async function getPostsbyUser(req, res) {}
-export async function getUserPosts(req, res) {}
+export async function getCommentsbyUser(req, res) {
+  const post = await PostModel.findById(req.params.postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+  const user = await UserModel.findById(req.params.userId);
+  if (!user) {
+    throw new AppError("user not found", 404);
+  } 
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      comments: post.findCommentByUser(user._id), 
+    },
+  });
+
+}
+
+export async function getPostsbyUser(req, res) {
+  const user = await UserModel.findById(req.params.userId);
+  if (!user) {
+    throw new AppError("user not found", 404);
+  } 
+
+  let posts = await PostModel.find({createdBy: user._id})
+  if(!posts) posts =[]
+
+  res.status(200).json({
+    status: "success",
+    length: posts.length,
+    data: {
+      posts: posts.map((post)=>post.getPostInfo(req.user))
+    },
+  });
+}
+
+export async function getUserPosts(req, res) {
+  let posts = await PostModel.find({createdBy: req.user})
+  if(!posts) posts =[]
+
+  res.status(200).json({
+    status: "success",
+    length: posts.length,
+    data: {
+      posts: posts.map((post)=>post.getPostInfo(req.user))
+    },
+  });
+}
+
 export async function searchPosts(req, res) {}
-export async function savePost(req, res) {}
-export async function unsavePost(req, res) {}
-export async function getSavedPosts(req, res) {}
+

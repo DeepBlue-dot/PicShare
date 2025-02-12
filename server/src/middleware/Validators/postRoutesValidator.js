@@ -132,7 +132,7 @@ export const addCommentValidator = [
   validateRequest,
 ];
 
-export const deleteComment = [
+export const deleteCommentValidator = [
   param("postId")
     .notEmpty()
     .withMessage("post ID is required")
@@ -171,3 +171,30 @@ export const updateCommentValidator = [
 
   validateRequest,
 ];
+
+export const getCommentsbyUserValidator = [
+  param("postId")
+    .notEmpty()
+    .withMessage("post ID is required")
+    .isMongoId()
+    .withMessage("Invalid post ID"),
+
+  param("userId")
+    .notEmpty()
+    .withMessage("user ID is required")
+    .isMongoId()
+    .withMessage("Invalid user ID"),
+
+  validateRequest,
+];
+
+export const getPostsbyUserValidator = [
+  param("userId")
+    .notEmpty()
+    .withMessage("user ID is required")
+    .isMongoId()
+    .withMessage("Invalid user ID"),
+
+  validateRequest,
+];
+

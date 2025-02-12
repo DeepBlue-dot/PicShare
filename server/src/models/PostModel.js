@@ -54,7 +54,7 @@ const postSchema = new mongoose.Schema(
   }
 );
 
-postSchema.methods.getPostInfo = function (userId) {
+postSchema.methods.getPostInfo = function (userId, userSavedPosts = []) {
   return {
     id: this._id,
     title: this.title,
@@ -73,10 +73,16 @@ postSchema.methods.getPostInfo = function (userId) {
       commented:
         userId && this.comments.length > 0
           ? this.comments.some(
-              (comment) => comment.userId?.toString() === userId?.toString()
+              (comment) =>
+                comment.commentedBy?.toString() === userId?.toString()
             )
           : false,
     },
+    saved: userId
+      ? userSavedPosts.some(
+          (postId) => postId.toString() === this._id.toString()
+        )
+      : false,
     tags: this.tags || [],
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
