@@ -13,10 +13,12 @@ import {
   getUserBoards,
   addTags,
 } from "../controllers/BoardController.js";
+import { validateCreateBoard } from "../middleware/Validators/boardRoutesValidator.js";
+import authenticateUser from "../middleware/authenticateUser.js";
 const boardRoutes = express.Router();
 
 // Board CRUD routes
-boardRoutes.route("/").post(createBoard).get(getAllBoard);
+boardRoutes.route("/").post(authenticateUser,validateCreateBoard,createBoard).get(getAllBoard);
 
 boardRoutes
   .route("/:boardId")

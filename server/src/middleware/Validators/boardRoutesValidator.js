@@ -1,4 +1,5 @@
 import { body, validationResult } from "express-validator";
+import { validateRequest } from "../validateRequest.js";
 
 export const validateCreateBoard = [
     body("name")
@@ -28,4 +29,5 @@ export const validateCreateBoard = [
       .optional()
       .isString()
       .withMessage("Cover image must be a string URL"),
+      validateRequest
   ];
