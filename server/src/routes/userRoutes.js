@@ -39,9 +39,9 @@ userRoutes
 userRoutes.route("/:id").get(getUserByIdValidator, asyncHandler(getUserById));
 userRoutes
   .route("/me/saved-posts")
-  .get(authenticateUser, asyncHandler(getSavedPosts));
+  .get(asyncHandler(authenticateUser), asyncHandler(getSavedPosts));
 userRoutes
   .route("/me/saved-posts/:postId")
-  .post(authenticateUser, PostValidator, asyncHandler(savePost));
+  .post(asyncHandler(authenticateUser), PostValidator, asyncHandler(savePost));
 
 export default userRoutes;

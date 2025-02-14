@@ -15,10 +15,14 @@ import {
 } from "../controllers/BoardController.js";
 import { validateCreateBoard } from "../middleware/Validators/boardRoutesValidator.js";
 import authenticateUser from "../middleware/authenticateUser.js";
+import asyncHandler from "../utils/asyncHandler.js";
 const boardRoutes = express.Router();
 
 // Board CRUD routes
-boardRoutes.route("/").post(authenticateUser,validateCreateBoard,createBoard).get(getAllBoard);
+boardRoutes
+  .route("/")
+  .post(asyncHandler(authenticateUser), validateCreateBoard, asyncHandler(createBoard))
+  .get(getAllBoard);
 
 boardRoutes
   .route("/:boardId")

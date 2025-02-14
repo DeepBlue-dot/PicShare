@@ -47,32 +47,32 @@ postRoutes
   .route("/:id")
   .get(getPostByIdValidator, getPostById)
   .patch(
-    authenticateUser,
+    asyncHandler(authenticateUser),
     upload.single("postImage"),
     updatePostValidator,
     asyncHandler(updatePost)
   )
-  .delete(authenticateUser, getPostByIdValidator, asyncHandler(deletePost));
+  .delete(asyncHandler(authenticateUser), getPostByIdValidator, asyncHandler(deletePost));
 
 postRoutes
   .route("/:postId/like")
-  .post(authenticateUser, PostValidator, asyncHandler(likePost));
+  .post(asyncHandler(authenticateUser), PostValidator, asyncHandler(likePost));
 
 postRoutes
   .route("/:postId/comment")
-  .post(authenticateUser, addCommentValidator, asyncHandler(addComment))
+  .post(asyncHandler(authenticateUser), addCommentValidator, asyncHandler(addComment))
   .get(asyncHandler(getComments));
 
 postRoutes
   .route("/:postId/comment/:commentId")
-  .delete(authenticateUser, deleteCommentValidator, asyncHandler(deleteComment))
-  .patch(authenticateUser, updateCommentValidator, asyncHandler(editComment));
+  .delete(asyncHandler(authenticateUser), deleteCommentValidator, asyncHandler(deleteComment))
+  .patch(asyncHandler(authenticateUser), updateCommentValidator, asyncHandler(editComment));
 
-postRoutes.route("/user/me").get(authenticateUser, asyncHandler(getUserPosts));
+postRoutes.route("/user/me").get(asyncHandler(authenticateUser), asyncHandler(getUserPosts));
 
 postRoutes
   .route("/user/me/comments/:postId")
-  .get(authenticateUser, PostValidator, asyncHandler(getUserComments));
+  .get(asyncHandler(authenticateUser), PostValidator, asyncHandler(getUserComments));
 
 postRoutes
   .route("/user/:userId")
