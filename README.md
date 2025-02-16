@@ -16,7 +16,7 @@ A full-stack web application inspired by Pinterest, built with **React** (fronte
 3. **Interactions**:
    - Like and save posts.
    - Add comments to posts.
-4. **Boards (Optional)**:
+4. **Boards**:
    - Organize posts into boards.
 5. **Search**:
    - Search for posts by title or tags.
