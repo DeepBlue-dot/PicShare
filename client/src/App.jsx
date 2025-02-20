@@ -1,22 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import CreatePost from "./pages/CreatePost";
+import PostDetails from "./pages/PostDetails";
+import Profile from "./pages/Profile";
+import Boards from "./pages/Boards";
+import { Outlet } from "react-router-dom";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import Sidebar from "./components/Sidebar";
+import TopBar from "./components/TopBar";
+
+// Layout component to wrap pages with navbar
+const Layout = () => {
+
+  return (
+    <>
+      <Sidebar />
+      <TopBar />
+      <main className="pt-16 min-h-screen bg-gray-50">
+        <Outlet />
+      </main>
+    </>
+  );
+};
 
 function App() {
   return (
-    <div className="text-center p-8">
-      <h1 className="text-3xl font-bold text-blue-600">
-        Hello from React & Tailwind!
-      </h1>
-      <p className="mt-4 text-gray-600">
-        This is a React application styled with Tailwind CSS
-      </p>
-      <button className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        Click Me
-      </button>
-    </div>
-  )
+    <>
+      <Router>
+        <Routes>
+          {/* Public routes with navbar */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/create-post" element={<CreatePost />} />
+            <Route path="/post/:id" element={<PostDetails />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/boards" element={<Boards />} />
+          </Route>
+          {/* Auth route without navbar */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
+          {/* Redirect unknown routes to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </>
+  );
 }
 
-export default App
+export default App;
