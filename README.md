@@ -7,7 +7,7 @@ A full-stack web application inspired by Pinterest, built with **React** (fronte
 
 ## **Features**
 1. **User Authentication**:
-   - Sign up, log in, and log out.
+   - Sign up, log in, and logout.
    - Secure password storage using bcrypt.
    - JWT-based authentication.
 2. **Post Management**:
