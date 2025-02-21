@@ -102,6 +102,9 @@ postSchema.methods.toggleLike = async function (userId) {
 };
 
 postSchema.methods.addComment = async function (text, commentedBy) {
+  if (this.comments.length >= 100) {
+    throw new AppError('Maximum of 100 comments per post reached', 400);
+  }
   this.comments.push({
     text,
     commentedBy,

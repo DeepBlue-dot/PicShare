@@ -107,7 +107,7 @@ export async function getAllPost(req, res) {
       page,
       limit,
       data: {
-        posts // Directly use the formatted data from aggregation
+        posts: posts.map((post) => PostModel.hydrate(post).getPostInfo(req.user))
       }
     });
 }

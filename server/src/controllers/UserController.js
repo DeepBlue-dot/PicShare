@@ -19,7 +19,7 @@ export async function getAllUsers(req, res) {
 }
 
 export async function getUserById(req, res, next) {
-  const user = UserModel.findById(req.params.id);
+  const user = await UserModel.findById(req.params.id);
   if (!user) throw AppError("user not found", 400);
 
   res.status(201).json({
