@@ -10,7 +10,16 @@ import path from "path";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Ensure no trailing slash
+    credentials: true, // Allow cookies and authentication headers
+    methods: ["GET", "POST", "PUT", "DELETE"], // Explicitly allow necessary methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+  })
+);
+
+
 app.use(express.json());
 app.use(cookieParser());
 

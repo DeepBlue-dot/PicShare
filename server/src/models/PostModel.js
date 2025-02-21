@@ -119,7 +119,7 @@ postSchema.methods.findCommentByUser = function (userId) {
 postSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
     const message = Object.keys(error.keyValue)
-      .map((field) => `${field} already exists. Please use another value.`)
+      .map((field) => `${field} already exists.`)
       .join(", \n");
     return next(new AppError(message, 400, "fail"));
   }

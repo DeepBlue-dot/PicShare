@@ -6,8 +6,8 @@ import {
   BellIcon,
   ChatBubbleOvalLeftIcon,
   Cog6ToothIcon,
-  UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -36,7 +36,7 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom Settings */}
-      <div className="py-4 flex flex-col items-center border-t">
+      <div className="py-4 flex flex-col items-center ">
         <button className="p-2 hover:bg-gray-100 rounded-full">
           <Cog6ToothIcon className="h-8 w-8 text-gray-700" />
         </button>

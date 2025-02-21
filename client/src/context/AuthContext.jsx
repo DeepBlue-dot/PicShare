@@ -1,91 +1,154 @@
 // src/context/AuthContext.js
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const AuthContext = createContext()
+const URL = "http://127.0.0.1:8080";
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const token = localStorage.getItem('token')
+        const token = Cookies.get("jwt"); // Changed to 'jwt'
         if (!token) {
-          setIsLoading(false)
-          return
+          setIsLoading(false);
+          return;
         }
 
-        // Verify token with backend
-        const response = await fetch('/api/auth/verify', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const response = await axios.get(`${URL}/api/users/me`, {
+          withCredentials: true, // Send cookies
+        });
 
-        if (response.ok) {
-          const userData = await response.json()
-          setUser(userData)
-          setIsAuthenticated(true)
+        if (response.data) {
+          setUser(response.data.data.user); // Adjusted response structure
+          setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Auth verification error:', error)
+        handleAuthError(error, "Session verification failed:");
+        Cookies.remove("jwt"); // Remove 'jwt' on error
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    verifyAuth()
-  }, [])
+    verifyAuth();
+  }, []);
+
+  const handleAuthError = (error, context = "") => {
+    const message = error.response?.data?.message || error.message;
+    setError(`${context} ${message}`);
+    setIsAuthenticated(false);
+    setUser(null);
+  };
 
   const login = async (credentials) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-      })
+      const response = await axios.post(
+        `${URL}/api/auth/login`,
+        credentials,
+        { withCredentials: true } // Enable cookies
+      );
 
-      if (!response.ok) throw new Error('Login failed')
-
-      const { token, user } = await response.json()
-      
-      localStorage.setItem('token', token)
-      setUser(user)
-      setIsAuthenticated(true)
-      navigate('/')
+      // Backend sets 'jwt' cookie, user data is in response
+      setUser(response.data.data.user); // Adjusted path
+      setIsAuthenticated(true);
+      setError(null);
     } catch (error) {
-      throw error
+      handleAuthError(error, "Login failed:");
+      throw error;
     }
-  }
+  };
 
-  const logout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    setIsAuthenticated(false)
-    navigate('/auth')
-  }
+  const logout = async () => {
+    try {
+      await axios.get(
+        `${URL}/api/auth/logout`,
+        {},
+        { withCredentials: true } // Send cookies to invalidate session
+      );
+    } finally {
+      Cookies.remove("jwt"); // Clear 'jwt' cookie
+      setUser(null);
+      setIsAuthenticated(false);
+      setError(null);
+    }
+  };
+
+  const signup = async (credentials) => {
+    try {
+      const response = await axios.post(`${URL}/api/users`, credentials);
+
+      setError(null);
+      return response.data; // Return success data to UI
+    } catch (error) {
+      handleAuthError(error, "Signup failed:");
+      throw error; // Propagate error to UI
+    }
+  };
+
+  // New: Send reset instructions to the user's email
+  const forgotPassword = async (email) => {
+    try {
+      const response = await axios.post(`${URL}/api/auth/resetPassword`, {
+        email,
+      });
+      setError(null);
+      return response.data;
+    } catch (error) {
+      handleAuthError(error, "Forgot password failed:");
+      throw error;
+    }
+  };
+
+  // New: Reset password using the token and new password provided by the user
+  const resetPassword = async (data, token) => {
+    try {
+      const response = await axios.post(`${URL}/api/auth/resetPassword/${token}`, data);
+      // Optionally, if the reset password endpoint logs the user in:
+      if (response.data.data && response.data.data.user) {
+        setUser(response.data.data.user);
+        setIsAuthenticated(true);
+      }
+      setError(null);
+      return response.data;
+    } catch (error) {
+      handleAuthError(error, "Reset password failed:");
+      throw error;
+    }
+  };
+
+  const clearError = () => setError(null);
 
   const value = {
     user,
     isAuthenticated,
     isLoading,
+    error,
     login,
-    logout
-  }
+    logout,
+    signup,
+    resetPassword,
+    forgotPassword,
+    clearError,
+  };
 
   return (
     <AuthContext.Provider value={value}>
       {!isLoading && children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
-}
+  return context;
+};

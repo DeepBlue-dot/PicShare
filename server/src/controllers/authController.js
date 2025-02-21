@@ -75,7 +75,7 @@ async function resetPasswordGenerator(req, res) {
     expiresIn: "1h",
   });
 
-  const resetLink = `${process.env.FRONTEND_URL}/api/auth/resetPassword/${token}`;
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
   user.resetToken = token;
   user.resetTokenExpires = Date.now() + 3600000; // 1 hour from now
@@ -142,7 +142,7 @@ async function regenerateVerificationToken(req, res) {
   user.verificationToken = newVerificationToken;
   await user.save();
 
-  const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify/${newVerificationToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/verify/${newVerificationToken}`;
 
   await sendMail(
     process.env.EMAIL_FROM,

@@ -17,7 +17,14 @@ export const validateUserRegistration = [
     .notEmpty()
     .withMessage("Username is required")
     .isLength({ min: 3 })
-    .withMessage("Username must be at least 3 characters long"),
+    .withMessage("Username must be at least 3 characters long")
+    .custom(async (username) => {
+      const existingUser = await UserModel.findOne({ username });
+      if (existingUser) {
+        throw new Error("Username already exists.");
+      }
+      return true;
+    }),
 
   body("email")
     .trim()
@@ -25,7 +32,14 @@ export const validateUserRegistration = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+    .normalizeEmail()
+    .custom(async (email) => {
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+        throw new Error("Email already exists.");
+      }
+      return true;
+    }),
 
   body("password")
     .trim()
@@ -82,14 +96,28 @@ export const validateUserUpdate = [
     .optional()
     .trim()
     .isLength({ min: 3 })
-    .withMessage("Username must be at least 3 characters long"),
+    .withMessage("Username must be at least 3 characters long")
+    .custom(async (username) => {
+      const existingUser = await UserModel.findOne({ username });
+      if (existingUser) {
+        throw new Error("Username already exists.");
+      }
+      return true;
+    }),
 
   body("email")
     .optional()
     .trim()
     .isEmail()
     .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+    .normalizeEmail()
+    .custom(async (email) => {
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+        throw new Error("Email already exists.");
+      }
+      return true;
+    }),
 
   body("password")
     .optional()

@@ -36,21 +36,26 @@ const userSchema = new mongoose.Schema(
 
 userSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
-    const message = Object.keys(error.keyValue)
-      .map((field) => `${field} already exists. Please use another value.`)
-      .join(", \n");
-    return next(new AppError(message, 400, "fail"));
+    // Create an object with keys from the duplicate fields and a custom message for each
+    const errorDetails = Object.keys(error.keyValue).reduce((acc, field) => {
+      acc[field] = `${field} already exists.`;
+      return acc;
+    }, {});
+    return next(new AppError(errorDetails, 400, "fail"));
   }
 
   if (error.name === "ValidationError") {
-    const message = Object.values(error.errors)
-      .map((err) => err.message)
-      .join(", \n");
-    return next(new AppError(message, 400, "fail"));
+    // Create an object with keys from the validation errors and use each error's message
+    const errorDetails = Object.keys(error.errors).reduce((acc, field) => {
+      acc[field] = error.errors[field].message;
+      return acc;
+    }, {});
+    return next(new AppError(errorDetails, 400, "fail"));
   }
 
   next(error);
 });
+
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
