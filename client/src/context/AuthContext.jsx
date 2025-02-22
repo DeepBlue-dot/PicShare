@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const token = Cookies.get("jwt"); // Changed to 'jwt'
+        const token = Cookies.get("jwt"); 
         if (!token) {
           setIsLoading(false);
           return;
@@ -26,12 +26,12 @@ export function AuthProvider({ children }) {
         });
 
         if (response.data) {
-          setUser(response.data.data.user); // Adjusted response structure
+          setUser(response.data.data.user);
           setIsAuthenticated(true);
         }
       } catch (error) {
         handleAuthError(error, "Session verification failed:");
-        Cookies.remove("jwt"); // Remove 'jwt' on error
+        Cookies.remove("jwt"); 
       } finally {
         setIsLoading(false);
       }
