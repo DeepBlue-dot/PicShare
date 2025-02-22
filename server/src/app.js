@@ -12,10 +12,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Ensure no trailing slash
-    credentials: true, // Allow cookies and authentication headers
-    methods: ["GET", "POST", "PUT", "DELETE"], // Explicitly allow necessary methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+    origin: "http://localhost:5173", 
+    credentials: true, 
+    methods: ["GET", "POST", "PUT", "DELETE"], 
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 

@@ -1,9 +1,15 @@
 // src/context/AuthContext.js
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const URL = "http://127.0.0.1:8080";
+const URL = "http://localhost:8080";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -12,53 +18,53 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const token = Cookies.get("jwt"); 
-        if (!token) {
-          setIsLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`${URL}/api/users/me`, {
-          withCredentials: true, // Send cookies
-        });
-
-        if (response.data) {
-          setUser(response.data.data.user);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        handleAuthError(error, "Session verification failed:");
-        Cookies.remove("jwt"); 
-      } finally {
-        setIsLoading(false);
+  // Centralized auth verification logic
+  const verifyAuth = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = Cookies.get("jwt");
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
       }
-    };
 
-    verifyAuth();
+      const { data } = await axios.get(`${URL}/api/users/me`, {
+        withCredentials: true,
+      });
+
+      if (data?.data?.user) {
+        setUser(data.data.user);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      handleAuthError(error, "Session verification failed:");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    verifyAuth();
+  }, [verifyAuth]);
 
   const handleAuthError = (error, context = "") => {
     const message = error.response?.data?.message || error.message;
     setError(`${context} ${message}`);
     setIsAuthenticated(false);
     setUser(null);
+    Cookies.remove("jwt");
   };
 
   const login = async (credentials) => {
     try {
-      const response = await axios.post(
-        `${URL}/api/auth/login`,
-        credentials,
-        { withCredentials: true } // Enable cookies
-      );
+      const { data } = await axios.post(`${URL}/api/auth/login`, credentials, {
+        withCredentials: true,
+      });
 
-      // Backend sets 'jwt' cookie, user data is in response
-      setUser(response.data.data.user); // Adjusted path
+      setUser(data.data.user);
       setIsAuthenticated(true);
       setError(null);
+      return data;
     } catch (error) {
       handleAuthError(error, "Login failed:");
       throw error;
@@ -67,13 +73,9 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await axios.get(
-        `${URL}/api/auth/logout`,
-        {},
-        { withCredentials: true } // Send cookies to invalidate session
-      );
+      await axios.get(`${URL}/api/auth/logout`, { withCredentials: true });
     } finally {
-      Cookies.remove("jwt"); // Clear 'jwt' cookie
+      Cookies.remove("jwt");
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
@@ -82,17 +84,15 @@ export function AuthProvider({ children }) {
 
   const signup = async (credentials) => {
     try {
-      const response = await axios.post(`${URL}/api/users`, credentials);
-
+      const { data } = await axios.post(`${URL}/api/users`, credentials);
       setError(null);
-      return response.data; // Return success data to UI
+      return data;
     } catch (error) {
       handleAuthError(error, "Signup failed:");
-      throw error; // Propagate error to UI
+      throw error;
     }
   };
 
-  // New: Send reset instructions to the user's email
   const forgotPassword = async (email) => {
     try {
       const response = await axios.post(`${URL}/api/auth/resetPassword`, {
@@ -109,7 +109,10 @@ export function AuthProvider({ children }) {
   // New: Reset password using the token and new password provided by the user
   const resetPassword = async (data, token) => {
     try {
-      const response = await axios.post(`${URL}/api/auth/resetPassword/${token}`, data);
+      const response = await axios.post(
+        `${URL}/api/auth/resetPassword/${token}`,
+        data
+      );
       // Optionally, if the reset password endpoint logs the user in:
       if (response.data.data && response.data.data.user) {
         setUser(response.data.data.user);
@@ -119,6 +122,37 @@ export function AuthProvider({ children }) {
       return response.data;
     } catch (error) {
       handleAuthError(error, "Reset password failed:");
+      throw error;
+    }
+  };
+
+  const verifyAccount = async (token) => {
+    try {
+      const response = await axios.get(`${URL}/api/auth/verify/${token}`, {
+        withCredentials: true,
+      });
+
+      // Update user state with verified status
+      setUser(response.data.data.user);
+      setIsAuthenticated(true);
+      setError(null);
+      return response.data;
+    } catch (error) {
+      handleAuthError(error, "Account verification failed:");
+      throw error;
+    }
+  };
+
+  const regenerateVerificationToken = async () => {
+    try {
+      const response = await axios.get(`${URL}/api/auth/verify`, {
+        withCredentials: true,
+      });
+
+      setError(null);
+      return response.data;
+    } catch (error) {
+      handleAuthError(error, "Resend verification failed:");
       throw error;
     }
   };
@@ -133,8 +167,12 @@ export function AuthProvider({ children }) {
     login,
     logout,
     signup,
+    verifyAuth, 
     resetPassword,
+    verifyAccount,
     forgotPassword,
+
+    regenerateVerificationToken,
     clearError,
   };
 

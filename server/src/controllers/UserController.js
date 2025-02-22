@@ -2,7 +2,6 @@ import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
-import cloudinary from "cloudinary";
 
 export async function getAllUsers(req, res) {
   const users = await (
@@ -52,7 +51,7 @@ export async function userRegister(req, res, next) {
     verificationToken: verificationToken,
   });
 
-  const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify/${verificationToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
 
   await sendMail(
     process.env.EMAIL_FROM,

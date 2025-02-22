@@ -18,7 +18,6 @@ export default async function authenticateUser(req, res, next) {
     if (!user) {
       res.cookie("jwt", "loggedout", {
         expires: new Date(Date.now()), // Expire immediately
-        httpOnly: true,
       });
       throw new AppError("Invalid token. Please log in again.", 401);
     }

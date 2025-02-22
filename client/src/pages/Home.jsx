@@ -24,10 +24,8 @@ export default function Home() {
 
     const response = await axios.get(URL, { withCredentials: true })
 
-    console.log(response)
-
     const { data, total } = response.data
-    setPosts(prev => (isLoadMore ? [...prev, ...data.posts] : data.posts))
+    setPosts([])
     setTotalPosts(total)
     setPage(pageNumber + 1)
   } catch (err) {
