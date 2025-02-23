@@ -3,8 +3,14 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
 
 const AccountUpdatePage = () => {
-  const { user, isAuthenticated, isLoading, updateUser, deleteAccount } =
-    useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    updateUser,
+    deleteAccount,
+    resendVerificationToken,
+  } = useAuth();
   const {
     register,
     handleSubmit,
@@ -45,6 +51,18 @@ const AccountUpdatePage = () => {
       } catch (err) {
         setError(err.message || "Failed to delete account. Please try again.");
       }
+    }
+  };
+
+  // New handler to resend verification token
+  const handleResendVerification = async () => {
+    setError("");
+    setSuccess("");
+    try {
+      await resendVerificationToken();
+      setSuccess("Verification token resent successfully! Please check your email.");
+    } catch (err) {
+      setError(err.message || "Failed to resend verification token. Please try again.");
     }
   };
 
@@ -125,6 +143,30 @@ const AccountUpdatePage = () => {
           {user.username}
         </h2>
         <p className="text-gray-600">{user.email}</p>
+      </div>
+
+      {/* Verification Status Section */}
+      <div className="mb-6 text-center">
+        {user.isVerified ? (
+          <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+            Verified
+          </span>
+        ) : (
+          <>
+            <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+              Not Verified
+            </span>
+            <div>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Resend Verification Token
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {error && (

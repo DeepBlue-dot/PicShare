@@ -87,7 +87,6 @@ export async function updateUser(req, res) {
 
   if (req.file) {
     const publicId = `${user._id}`;
-    await deleteFileFromCloudinary(user.profilePicture);
     const uploadResult = await uploadFileToCloudinary(req.file, publicId);
     user.profilePicture = uploadResult.secure_url;
   }

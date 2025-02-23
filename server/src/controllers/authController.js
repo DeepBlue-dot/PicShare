@@ -44,7 +44,7 @@ async function verifyAccount(req, res) {
     { new: true, runValidators: true }
   );
 
-  if (!user) throw new AppError("Invalid token. Please log in again.", 401);
+  if (!user) throw new AppError("Invalid token. Please log in again.", 400);
 
   res.status(200).json({
     status: "success",

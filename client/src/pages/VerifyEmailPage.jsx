@@ -13,20 +13,22 @@ const VerifyEmailPage = () => {
   useEffect(() => {
     const verify = async () => {
       try {
-        await verifyAccount(token);
-        setSuccess(true);
-        
-        // Start countdown timer
-        const timer = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              navigate('/');
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
+        if(!success) {
+          await verifyAccount(token);
+          setSuccess(true);
+          
+          // Start countdown timer
+          const timer = setInterval(() => {
+            setCountdown((prev) => {
+              if (prev <= 1) {
+                clearInterval(timer);
+                navigate('/');
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
 
       } catch (err) {
         setSuccess(false);
@@ -36,7 +38,7 @@ const VerifyEmailPage = () => {
     };
     
     verify();
-  }, [token, verifyAccount, navigate]);
+  }, [token, verifyAccount, navigate, success]);
 
   if (isLoading) {
     return (

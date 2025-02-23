@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const verifyAccount = async (token) => {
+  const verifyAccount = useCallback(async (token) => {
     try {
       const response = await axios.get(`${URL}/api/auth/verify/${token}`, {
         withCredentials: true,
@@ -134,9 +134,9 @@ export function AuthProvider({ children }) {
       handleAuthError(error, "Account verification failed:");
       throw error;
     }
-  };
+  }, []);
 
-  const regenerateVerificationToken = async () => {
+  const resendVerificationToken = async () => {
     try {
       const response = await axios.get(`${URL}/api/auth/verify`, {
         withCredentials: true,
@@ -168,6 +168,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      await axios.delete(`${URL}/api/users/me`, {
+        withCredentials: true,
+      });
+      // Remove auth state on successful deletion
+      Cookies.remove("jwt");
+      setUser(null);
+      setIsAuthenticated(false);
+      setError(null);
+    } catch (error) {
+      handleAuthError(error, "Delete account failed:");
+      throw error;
+    }
+  };
+
   const clearError = () => setError(null);
 
   const value = {
@@ -182,8 +198,9 @@ export function AuthProvider({ children }) {
     resetPassword,
     verifyAccount,
     forgotPassword,
-    regenerateVerificationToken,
+    resendVerificationToken,
     updateUser,
+    deleteAccount,
     clearError,
   };
 
