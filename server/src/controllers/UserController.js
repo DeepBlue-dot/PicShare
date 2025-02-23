@@ -2,6 +2,7 @@ import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../utils/cloudinaryUtils.js";
 
 export async function getAllUsers(req, res) {
   const users = await (
@@ -86,6 +87,7 @@ export async function updateUser(req, res) {
 
   if (req.file) {
     const publicId = `${user._id}`;
+    await deleteFileFromCloudinary(user.profilePicture);
     const uploadResult = await uploadFileToCloudinary(req.file, publicId);
     user.profilePicture = uploadResult.secure_url;
   }

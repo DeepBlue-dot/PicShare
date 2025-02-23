@@ -1,6 +1,7 @@
 import { body, param } from "express-validator";
 import { validateRequest } from "../validateRequest.js";
 import UserModel from "../..//models/UserModel.js";
+import AppError from "../../utils/appError.js";
 
 export const getUserByIdValidator = [
   param("id")
@@ -76,7 +77,7 @@ const allowedFields = [
 export const validateUserUpdate = [
   (req, res, next) => {
     if ((!req.body || Object.keys(req.body).length === 0) && !req.file) {
-      throw new Error("No update data provided");
+      throw new AppError("No update data provided", 401);
     }
     next();
   },
@@ -87,7 +88,7 @@ export const validateUserUpdate = [
     );
 
     if (invalidFields.length > 0) {
-      throw new Error(`Invalid properties: ${invalidFields.join(", ")}`);
+      throw new AppError(`Invalid properties: ${invalidFields.join(", ")}`, 401);
     }
     next();
   },

@@ -12,6 +12,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import NotFound from "./pages/NotFound";
+import AccountUpdatePage from "./pages/UpdateProfilePage";
 
 // Layout component to wrap pages with navbar
 const Layout = () => {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/post/:id" element={<PostDetails />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/updateProfile" element={<AccountUpdatePage />} />
             <Route path="/boards" element={<Boards />} />
           </Route>
           {/* Auth route without navbar */}

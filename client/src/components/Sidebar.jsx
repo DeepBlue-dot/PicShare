@@ -38,7 +38,9 @@ export default function Sidebar() {
       {/* Bottom Settings */}
       <div className="py-4 flex flex-col items-center ">
         <button className="p-2 hover:bg-gray-100 rounded-full">
-          <Cog6ToothIcon className="h-8 w-8 text-gray-700" />
+          <Link to="/updateProfile">
+            <Cog6ToothIcon className="h-8 w-8 text-gray-700" />
+          </Link>
         </button>
       </div>
     </div>

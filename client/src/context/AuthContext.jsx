@@ -18,7 +18,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Centralized auth verification logic
   const verifyAuth = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -45,14 +44,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     verifyAuth();
-  }, [verifyAuth]);
+  }, [verifyAuth, isAuthenticated]);
 
   const handleAuthError = (error, context = "") => {
     const message = error.response?.data?.message || error.message;
     setError(`${context} ${message}`);
-    setIsAuthenticated(false);
-    setUser(null);
-    Cookies.remove("jwt");
+    if (error.response?.status === 401) {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
   };
 
   const login = async (credentials) => {
@@ -60,7 +60,6 @@ export function AuthProvider({ children }) {
       const { data } = await axios.post(`${URL}/api/auth/login`, credentials, {
         withCredentials: true,
       });
-
       setUser(data.data.user);
       setIsAuthenticated(true);
       setError(null);
@@ -101,19 +100,15 @@ export function AuthProvider({ children }) {
       setError(null);
       return response.data;
     } catch (error) {
+      Cookies.remove("jwt");
       handleAuthError(error, "Forgot password failed:");
       throw error;
     }
   };
 
-  // New: Reset password using the token and new password provided by the user
   const resetPassword = async (data, token) => {
     try {
-      const response = await axios.post(
-        `${URL}/api/auth/resetPassword/${token}`,
-        data
-      );
-      // Optionally, if the reset password endpoint logs the user in:
+      const response = await axios.post(`${URL}/api/auth/resetPassword/${token}`, data);
       if (response.data.data && response.data.data.user) {
         setUser(response.data.data.user);
         setIsAuthenticated(true);
@@ -131,8 +126,6 @@ export function AuthProvider({ children }) {
       const response = await axios.get(`${URL}/api/auth/verify/${token}`, {
         withCredentials: true,
       });
-
-      // Update user state with verified status
       setUser(response.data.data.user);
       setIsAuthenticated(true);
       setError(null);
@@ -148,11 +141,29 @@ export function AuthProvider({ children }) {
       const response = await axios.get(`${URL}/api/auth/verify`, {
         withCredentials: true,
       });
-
       setError(null);
       return response.data;
     } catch (error) {
       handleAuthError(error, "Resend verification failed:");
+      throw error;
+    }
+  };
+
+  const updateUser = async (updatedData) => {
+    try {
+      
+      const response = await axios.patch(`${URL}/api/users/me`, updatedData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      setUser(response.data.data.user);
+      setError(null);
+      return response.data;
+    } catch (error) {
+      handleAuthError(error, "Update user failed:");
       throw error;
     }
   };
@@ -167,18 +178,24 @@ export function AuthProvider({ children }) {
     login,
     logout,
     signup,
-    verifyAuth, 
+    verifyAuth,
     resetPassword,
     verifyAccount,
     forgotPassword,
-
     regenerateVerificationToken,
+    updateUser,
     clearError,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!isLoading && children}
+      {isLoading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+          <div className="animate-spin inline-block w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

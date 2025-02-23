@@ -29,7 +29,7 @@ export const uploadFileToCloudinary = async (file, publicId) => {
 };
 
 
-export const deleteFileFromCloudinary = async (publicId) => {
+export const deleteFileFromCloudinary = async (secureUrl) => {
   try {
     const publicId = extractPublicId(secureUrl);
 
