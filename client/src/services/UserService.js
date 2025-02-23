@@ -12,6 +12,13 @@ const UserService = {
       return data.data.user;
   },
 
+  async getUserById(id) {
+    const { data } = await axios.get(`${URL}/api/users/${id}`, {
+      withCredentials: true,
+    });
+    return data.data.user;
+},
+
   async toggleSavePost(postId) {
     console.log(postId)
       const response = await axios.post(`/me/saved-posts/${postId}`);

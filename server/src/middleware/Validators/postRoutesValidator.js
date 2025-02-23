@@ -33,13 +33,13 @@ export const createPostValidator = [
   // Validate the tags (optional)
   body("tags")
     .optional()
-    .isArray({ max: 10 })
-    .withMessage("A post cannot have more than 10 tags.")
     .custom((tags) => {
-      if (tags) {
+      if (Array.isArray(tags) && tags.length < 10) {
         return tags.every((tag) => typeof tag === "string" && tag.length <= 20);
+      } else if (typeof tags === "string") {
+        return true
       }
-      return true;
+      return false; // If not an array, fail validation
     })
     .withMessage("Each tag must be a string and no longer than 20 characters."),
 

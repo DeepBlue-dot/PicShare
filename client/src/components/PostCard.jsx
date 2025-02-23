@@ -14,7 +14,7 @@ const PostCard = ({ postId }) => {
       try {
         const data = (await PostService.getPostById(postId)).data;
         // Fetch the complete createdBy user data if needed.
-        data.createdBy = await UserService.getUser(data.createdBy);
+        data.createdBy = await UserService.getUserById(data.createdBy);
         setPost(data);
         console.log(data);
       } catch (error) {
