@@ -1,161 +1,150 @@
-import { useState, useEffect } from "react";
-import {
-  HeartIcon,
-  BookmarkIcon,
-  ChatBubbleOvalLeftIcon,
-} from "@heroicons/react/24/outline";
-import {
-  HeartIcon as HeartSolidIcon,
-  BookmarkIcon as BookmarkSolidIcon,
-} from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import PropTypes from "prop-types";
+import { useEffect, useState } from 'react';
+import PostService from '../services/PostService';
+import UserService from '../services/UserService';
+// Import icons from Heroicons
+import { BookmarkIcon as BookmarkSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import { BookmarkIcon, HeartIcon, ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline';
 
-export default function PostCard({ post, onLike, onSave }) {
-  const { user } = useAuth();
-  const postId = post.id || post._id;
+const PostCard = ({ postId }) => {
+  const [post, setPost] = useState(null);
 
-  const [optimisticLiked, setOptimisticLiked] = useState(post.likes);
-  const [optimisticSaved, setOptimisticSaved] = useState(post.saved);
-  const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Re-sync if the post likes change or if the user changes.
+  // Fetch the post data when the component mounts or when postId changes.
   useEffect(() => {
-    setOptimisticLiked(post.likes);
-  }, [post.like]);
+    const fetchPost = async () => {
+      try {
+        const data = (await PostService.getPostById(postId)).data;
+        // Fetch the complete createdBy user data if needed.
+        data.createdBy = await UserService.getUser(data.createdBy);
+        setPost(data);
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching post:', error);
+      }
+    };
 
-  // Re-sync if the user's saved posts or the post ID change.
-  useEffect(() => {
-    setOptimisticSaved(post.saved);
-  }, [post.saved]);
+    fetchPost();
+  }, [postId]);
+
+  // While waiting for data, render a loading state.
+  if (!post) {
+    return <div>Loading...</div>;
+  }
 
   const handleLike = async () => {
-    if (!user) return;
-
-    const originalLiked = optimisticLiked;
-    const originalLikeCount = likeCount;
-
     try {
-      setOptimisticLiked(!originalLiked);
-      setLikeCount(
-        originalLiked ? originalLikeCount - 1 : originalLikeCount + 1
-      );
-      await api.post(`/posts/${postId}/like`);
-      onLike?.(postId, !originalLiked);
+      await PostService.likePost(post.id);
+      setPost((prev) => ({
+        ...prev,
+        likes: {
+          ...prev.likes,
+          liked: !prev.likes.liked,
+          count: prev.likes.liked ? prev.likes.count - 1 : prev.likes.count + 1,
+        },
+      }));
     } catch (error) {
-      setOptimisticLiked(originalLiked);
-      setLikeCount(originalLikeCount);
+      console.error('Error liking post:', error);
     }
   };
 
   const handleSave = async () => {
-    if (!user) return;
-
-    const originalSaved = optimisticSaved;
-
     try {
-      setOptimisticSaved(!originalSaved);
-      await api.post(`/posts/${postId}/save`);
-      onSave?.(postId, !originalSaved);
+      await UserService.toggleSavePost(post.id);
+      setPost((prev) => ({
+        ...prev,
+        saved: !prev.saved,
+      }));
     } catch (error) {
-      setOptimisticSaved(originalSaved);
+      console.error('Error saving post:', error);
     }
   };
 
   return (
-    <div className="break-inside-avoid-column mb-6 hover:opacity-90 transition-opacity duration-200">
-      <div
-        className="relative group rounded-xl overflow-hidden shadow-lg"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(!isHovered)}
-      >
+    <div className="break-inside-avoid group relative rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-200">
+      {/* Image Container */}
+      <div className="relative overflow-hidden rounded-t-xl">
         <img
           src={post.imageUrl}
           alt={post.title}
-          className="w-full h-full object-cover cursor-zoom-in aspect-square"
-          loading="lazy"
-          onError={(e) => {
-            e.target.src = "/default-post.jpg";
-            e.target.onerror = null;
-          }}
+          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
         />
-
-        {(isHovered || window.innerWidth < 640) && (
-          <div className="absolute inset-0 bg-black/50 p-4 flex flex-col justify-between transition-opacity">
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={handleLike}
-                aria-label={optimisticLiked ? "Unlike post" : "Like post"}
-                className="p-2 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors"
-              >
-                {optimisticLiked ? (
-                  <HeartSolidIcon className="w-6 h-6 text-red-500" />
-                ) : (
-                  <HeartIcon className="w-6 h-6 text-white" />
-                )}
-                <span className="sr-only">{likeCount} likes</span>
-              </button>
-              <button
-                onClick={handleSave}
-                aria-label={optimisticSaved ? "Unsave post" : "Save post"}
-                className="p-2 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors"
-              >
-                {optimisticSaved ? (
-                  <BookmarkSolidIcon className="w-6 h-6 text-primary" />
-                ) : (
-                  <BookmarkIcon className="w-6 h-6 text-white" />
-                )}
-              </button>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <Link
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full hover:bg-white/20"
-              >
-                <img
-                  src={post.createdBy?.profilePicture || "/default-avatar.jpg"}
-                  className="w-8 h-8 rounded-full object-cover"
-                  alt={post.createdBy?.username}
-                  onError={(e) => {
-                    e.target.src = "/default-avatar.jpg";
-                    e.target.onerror = null;
-                  }}
-                />
-                <span className="text-white font-medium">
-                  {post.createdBy?.username || "Unknown user"}
-                </span>
-              </Link>
-
-              <Link
-                to={`/post/${postId}`}
-                className="p-2 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20"
-                aria-label={`View comments (${post.comments?.length || 0})`}
-              >
-                <ChatBubbleOvalLeftIcon className="w-6 h-6 text-white" />
-                <span className="sr-only">
-                  {post.comments?.length || 0} comments
-                </span>
-              </Link>
-            </div>
-          </div>
-        )}
+        
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur rounded-full shadow hover:bg-white transition-colors"
+        >
+          {post.saved ? (
+            <BookmarkSolidIcon className="w-6 h-6 text-rose-500" />
+          ) : (
+            <BookmarkIcon className="w-6 h-6 text-gray-700" />
+          )}
+        </button>
       </div>
 
-      {(post.title || post.description) && (
-        <div className="mt-2 px-2 space-y-1">
-          {post.title && (
-            <h3 className="font-semibold line-clamp-2">{post.title}</h3>
+      {/* Content Container */}
+      <div className="p-4">
+        {/* Title & Description */}
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{post.title}</h3>
+        {post.description && (
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3">{post.description}</p>
+        )}
+
+        {/* User Info */}
+        <div className="flex items-center gap-2 mb-4">
+          {post.createdBy.profilePicture ? (
+            <img
+              src={post.createdBy.profilePicture}
+              alt={post.createdBy.username}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-sm font-medium">
+                {post.createdBy.username?.[0]?.toUpperCase() || 'U'}
+              </span>
+            </div>
           )}
-          {post.description && (
-            <p className="text-sm text-gray-600 line-clamp-3">
-              {post.description}
-            </p>
-          )}
+          <span className="text-sm font-medium">{post.createdBy.username || 'Unknown'}</span>
         </div>
-      )}
+
+        {/* Tags */}
+        {post.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center justify-between text-gray-600">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1 hover:text-rose-500 transition-colors"
+            >
+              {post.likes.liked ? (
+                <HeartSolidIcon className="w-6 h-6 text-rose-500" />
+              ) : (
+                <HeartIcon className="w-6 h-6" />
+              )}
+              <span className="text-sm">{post.likes.count}</span>
+            </button>
+            
+            <button className="flex items-center gap-1 hover:text-blue-500 transition-colors">
+              <ChatBubbleOvalLeftIcon className="w-6 h-6" />
+              <span className="text-sm">{post.comments.count}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default PostCard;

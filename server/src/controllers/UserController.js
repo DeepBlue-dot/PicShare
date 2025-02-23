@@ -3,6 +3,8 @@ import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../utils/cloudinaryUtils.js";
+import PostModel from "../models/PostModel.js";
+
 
 export async function getAllUsers(req, res) {
   const users = await (

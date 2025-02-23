@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import {
   createContext,
   useContext,
@@ -8,6 +7,8 @@ import {
 } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import PostService from "../services/PostService";
+import UserService from "../services/UserService"; // Import UserService
 
 const URL = "http://localhost:8080";
 const AuthContext = createContext();
@@ -27,12 +28,9 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const { data } = await axios.get(`${URL}/api/users/me`, {
-        withCredentials: true,
-      });
-
-      if (data?.data?.user) {
-        setUser(data.data.user);
+      const userData = await UserService.getUser();
+      if (userData) {
+        setUser(userData);
         setIsAuthenticated(true);
       }
     } catch (error) {
@@ -151,17 +149,10 @@ export function AuthProvider({ children }) {
 
   const updateUser = async (updatedData) => {
     try {
-      
-      const response = await axios.patch(`${URL}/api/users/me`, updatedData, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
-      setUser(response.data.data.user);
+      const updatedUser = await UserService.updateUser(updatedData);
+      setUser(updatedUser);
       setError(null);
-      return response.data;
+      return updatedUser;
     } catch (error) {
       handleAuthError(error, "Update user failed:");
       throw error;
@@ -170,11 +161,7 @@ export function AuthProvider({ children }) {
 
   const deleteAccount = async () => {
     try {
-      await axios.delete(`${URL}/api/users/me`, {
-        withCredentials: true,
-      });
-      // Remove auth state on successful deletion
-      Cookies.remove("jwt");
+      await UserService.deleteAccount();
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
@@ -202,6 +189,7 @@ export function AuthProvider({ children }) {
     updateUser,
     deleteAccount,
     clearError,
+    PostService,
   };
 
   return (
