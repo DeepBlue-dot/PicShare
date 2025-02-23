@@ -19,6 +19,7 @@ import TopBar from "./components/TopBar";
 import NotFound from "./pages/NotFound";
 import AccountUpdatePage from "./pages/UpdateProfilePage";
 import { useAuth } from "./context/AuthContext";
+import UserProfile from "./pages/UserProfile";
 
 // Layout component to wrap pages with navbar
 const Layout = () => {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/boards" element={<Boards />} />
+          <Route path="/profile/:id" element={<UserProfile />} />
 
           {/* Protected Routes */}
           <Route

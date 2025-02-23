@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
-import PostService from '../services/PostService';
-import UserService from '../services/UserService';
+import { useEffect, useState } from "react";
+import PostService from "../services/PostService";
+import UserService from "../services/UserService";
 // Import icons from Heroicons
-import { BookmarkIcon as BookmarkSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import { BookmarkIcon, HeartIcon, ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline';
+import {
+  BookmarkIcon as BookmarkSolidIcon,
+  HeartIcon as HeartSolidIcon,
+} from "@heroicons/react/24/solid";
+import {
+  BookmarkIcon,
+  HeartIcon,
+  ChatBubbleOvalLeftIcon,
+} from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 
 const PostCard = ({ postId }) => {
   const [post, setPost] = useState(null);
@@ -15,10 +23,10 @@ const PostCard = ({ postId }) => {
         const data = (await PostService.getPostById(postId)).data;
         // Fetch the complete createdBy user data if needed.
         data.createdBy = await UserService.getUserById(data.createdBy);
+        console.log(data.createdBy )
         setPost(data);
-        console.log(data);
       } catch (error) {
-        console.error('Error fetching post:', error);
+        console.error("Error fetching post:", error);
       }
     };
 
@@ -42,7 +50,7 @@ const PostCard = ({ postId }) => {
         },
       }));
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error("Error liking post:", error);
     }
   };
 
@@ -54,7 +62,7 @@ const PostCard = ({ postId }) => {
         saved: !prev.saved,
       }));
     } catch (error) {
-      console.error('Error saving post:', error);
+      console.error("Error saving post:", error);
     }
   };
 
@@ -67,7 +75,7 @@ const PostCard = ({ postId }) => {
           alt={post.title}
           className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        
+
         {/* Save Button */}
         <button
           onClick={handleSave}
@@ -84,9 +92,13 @@ const PostCard = ({ postId }) => {
       {/* Content Container */}
       <div className="p-4">
         {/* Title & Description */}
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{post.title}</h3>
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+          {post.title}
+        </h3>
         {post.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3">{post.description}</p>
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+            {post.description}
+          </p>
         )}
 
         {/* User Info */}
@@ -100,11 +112,15 @@ const PostCard = ({ postId }) => {
           ) : (
             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
               <span className="text-sm font-medium">
-                {post.createdBy.username?.[0]?.toUpperCase() || 'U'}
+                {post.createdBy.username?.[0]?.toUpperCase() || "U"}
               </span>
             </div>
           )}
-          <span className="text-sm font-medium">{post.createdBy.username || 'Unknown'}</span>
+          <Link to={`/profile/${post.createdBy.id}`}>
+            <span className="text-sm font-medium">
+              {post.createdBy.username || "Unknown"}
+            </span>
+          </Link>
         </div>
 
         {/* Tags */}
@@ -135,7 +151,7 @@ const PostCard = ({ postId }) => {
               )}
               <span className="text-sm">{post.likes.count}</span>
             </button>
-            
+
             <button className="flex items-center gap-1 hover:text-blue-500 transition-colors">
               <ChatBubbleOvalLeftIcon className="w-6 h-6" />
               <span className="text-sm">{post.comments.count}</span>

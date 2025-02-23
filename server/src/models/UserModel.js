@@ -70,6 +70,7 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.getMyProfile = function () {
   return {
+    id: this._id,
     username: this.username,
     email: this.email,
     profilePicture: this.profilePicture,
@@ -82,6 +83,7 @@ userSchema.methods.getMyProfile = function () {
 
 userSchema.methods.getPublicProfile = function () {
   return {
+    id: this._id,
     username: this.username,
     email: this.email,
     profilePicture: this.profilePicture,
