@@ -23,7 +23,6 @@ const HomePage = ({ user }) => {
       try {
         const data = await PostService.getAllPosts();
         setPosts(data.data.posts);
-        console.log(data.data.posts);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -64,9 +63,7 @@ const HomePage = ({ user }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
-            <Link to={`/post/${post.id}`}>
               <PostCard postId={post.id} />
-            </Link>
           </motion.div>
         ))}
       </Masonry>

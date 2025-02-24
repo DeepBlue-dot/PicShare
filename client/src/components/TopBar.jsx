@@ -28,7 +28,7 @@ export default function TopBar() {
   const userInitial = user?.username?.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="fixed top-0 left-20 right-0 h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center px-6 z-40">
+    <div className="h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center px-6">
       <div className="flex-1 max-w-3xl mx-auto relative">
         <label htmlFor="search" className="sr-only">
           Search posts

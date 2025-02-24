@@ -6,7 +6,6 @@ const AccountUpdatePage = () => {
   const {
     user,
     isAuthenticated,
-    isLoading,
     updateUser,
     deleteAccount,
     resendVerificationToken,
@@ -23,6 +22,7 @@ const AccountUpdatePage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -60,9 +60,13 @@ const AccountUpdatePage = () => {
     setSuccess("");
     try {
       await resendVerificationToken();
-      setSuccess("Verification token resent successfully! Please check your email.");
+      setSuccess(
+        "Verification token resent successfully! Please check your email."
+      );
     } catch (err) {
-      setError(err.message || "Failed to resend verification token. Please try again.");
+      setError(
+        err.message || "Failed to resend verification token. Please try again."
+      );
     }
   };
 
@@ -70,6 +74,7 @@ const AccountUpdatePage = () => {
     setError("");
     setSuccess("");
     setServerErrors({});
+    setIsLoading(true); // start loading
 
     const formDataToSend = new FormData();
 
@@ -109,10 +114,18 @@ const AccountUpdatePage = () => {
       } else {
         setError(err.message || "Failed to update account. Please try again.");
       }
+    } finally {
+      setIsLoading(false); // stop loading
     }
   };
 
-  if (isLoading) return <div className="text-center p-8">Loading...</div>;
+  if (isLoading)
+    return (
+      <>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+        <p className="mt-4 text-white text-lg">Loading...</p>
+      </>
+    );
   if (!isAuthenticated)
     return (
       <div className="text-center p-8">Please log in to view this page</div>
