@@ -2,11 +2,15 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   PhotoIcon,
   BookmarkIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import PostService from "../services/PostService";
+import PostCard from "../components/PostCard";
+import Masonry from "react-masonry-css";
 
 const Profile = () => {
   const { user, isAuthenticated, isLoading, error } = useAuth();
@@ -18,10 +22,10 @@ const Profile = () => {
     const fetchSavedPosts = async () => {
       if (user?.savedPosts?.length > 0) {
         try {
-          const { data } = await axios.get(`${URL}/api/users/me/saved-posts`, {
-            withCredentials: true,
-          });
-          setSavedPosts(data.data.posts);
+          const posts = await Promise.all(
+            user.savedPosts.map(async(postId) => (await PostService.getPostById(postId)).data)
+          );
+          setSavedPosts(posts);
         } catch (error) {
           setPostsError("Failed to load saved posts");
         } finally {
@@ -97,35 +101,29 @@ const Profile = () => {
           <p>No saved posts yet</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {savedPosts.map((post) => (
-            <Link
-              to={`/posts/${post._id}`}
-              key={post._id}
-              className="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-            >
-              {post.image ? (
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover aspect-square"
-                />
-              ) : (
-                <div className="w-full aspect-square bg-gray-100 flex items-center justify-center">
-                  <PhotoIcon className="h-12 w-12 text-gray-400" />
-                </div>
-              )}
+        <div className="container mx-auto px-4 py-8">
+      <Masonry
+        className="flex gap-4"
+        columnClassName="my-masonry-grid_column"
+      >
+        {savedPosts.map((post, index) => (
+          <motion.div
+            key={post.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+          >
+            <PostCard postId={post.id} />
+          </motion.div>
+        ))}
+      </Masonry>
 
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                  <h3 className="text-white font-medium truncate">
-                    {post.title}
-                  </h3>
-                </div>
-              </div>
-            </Link>
-          ))}
+      {savedPosts.length === 0 && (
+        <div className="text-center text-gray-500 text-xl mt-8">
+          No posts found. Be the first to create one!
         </div>
+      )}
+    </div>
       )}
     </div>
   );

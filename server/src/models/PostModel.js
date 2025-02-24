@@ -55,6 +55,21 @@ const postSchema = new mongoose.Schema(
 );
 
 postSchema.methods.getPostInfo = function (userId, userSavedPosts = []) {
+  const liked = userId
+    ? this.likes.some((like) => like.toString() === userId.toString())
+    : false;
+  const commented = userId
+    ? this.comments.some(
+        (comment) =>
+          comment.commentedBy?.toString() === userId.toString()
+      )
+    : false;
+  const saved = userId
+    ? userSavedPosts.some(
+        (postId) => postId.toString() === this._id.toString()
+      )
+    : false;
+
   return {
     id: this._id,
     title: this.title,
@@ -63,31 +78,19 @@ postSchema.methods.getPostInfo = function (userId, userSavedPosts = []) {
     createdBy: this.createdBy,
     likes: {
       count: this.likes.length,
-      liked:
-        userId && this.likes.length > 0
-          ? this.likes.some((like) => like?.toString() === userId?.toString())
-          : false,
+      liked,
     },
     comments: {
       count: this.comments.length,
-      commented:
-        userId && this.comments.length > 0
-          ? this.comments.some(
-              (comment) =>
-                comment.commentedBy?.toString() === userId?.toString()
-            )
-          : false,
+      commented,
     },
-    saved: userId
-      ? userSavedPosts.some(
-          (postId) => postId.toString() === this._id.toString()
-        )
-      : false,
+    saved,
     tags: this.tags || [],
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
 };
+
 
 postSchema.methods.toggleLike = async function (userId) {
   const hasLiked = this.likes.some((id) => id.toString() === userId.toString());

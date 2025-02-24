@@ -22,7 +22,7 @@ export async function getAllUsers(req, res) {
 
 export async function getUserById(req, res, next) {
   const user = await UserModel.findById(req.params.id);
-  if (!user) throw AppError("user not found", 400);
+  if (!user) throw new AppError("user not found", 400);
 
   res.status(201).json({
     status: "success",

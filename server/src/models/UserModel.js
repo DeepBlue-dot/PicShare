@@ -21,7 +21,11 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
-    profilePicture: { type: String, default: "https://res.cloudinary.com/dt5ul7aww/image/upload/v1739269736/cvgdfcqjdfjsdsdv01f6.jpg" },
+    profilePicture: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dt5ul7aww/image/upload/v1739269736/cvgdfcqjdfjsdsdv01f6.jpg",
+    },
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String, default: "" },
@@ -33,10 +37,8 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-
 userSchema.post("save", (error, doc, next) => {
   if (error.name === "MongoServerError" && error.code === 11000) {
-    // Create an object with keys from the duplicate fields and a custom message for each
     const errorDetails = Object.keys(error.keyValue).reduce((acc, field) => {
       acc[field] = `${field} already exists.`;
       return acc;
@@ -45,7 +47,6 @@ userSchema.post("save", (error, doc, next) => {
   }
 
   if (error.name === "ValidationError") {
-    // Create an object with keys from the validation errors and use each error's message
     const errorDetails = Object.keys(error.errors).reduce((acc, field) => {
       acc[field] = error.errors[field].message;
       return acc;
@@ -55,7 +56,6 @@ userSchema.post("save", (error, doc, next) => {
 
   next(error);
 });
-
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -75,6 +75,7 @@ userSchema.methods.getMyProfile = function () {
     email: this.email,
     profilePicture: this.profilePicture,
     savedPosts: this.savedPosts,
+    likedPosts: this.likedPosts,
     isVerified: this.isVerified,
     updatedAt: this.updatedAt,
     createdAt: this.createdAt,
@@ -88,6 +89,7 @@ userSchema.methods.getPublicProfile = function () {
     email: this.email,
     profilePicture: this.profilePicture,
     savedPosts: this.savedPosts,
+    likedPosts: this.likedPosts,
   };
 };
 
@@ -96,7 +98,9 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 userSchema.methods.toggleSavePost = async function (postId) {
-  const index = this.savedPosts.findIndex((id) => id.toString() === postId.toString());
+  const index = this.savedPosts.findIndex(
+    (id) => id.toString() === postId.toString()
+  );
 
   if (index !== -1) {
     this.savedPosts.splice(index, 1);
@@ -105,6 +109,27 @@ userSchema.methods.toggleSavePost = async function (postId) {
   }
 
   return await this.save();
+};
+
+userSchema.methods.toggleLikePost = async function (postId) {
+  const index = this.likedPosts.findIndex(
+    (id) => id.toString() === postId.toString()
+  );
+
+  if (index !== -1) {
+    this.likedPosts.splice(index, 1);
+  } else {
+    this.likedPosts.push(postId);
+  }
+
+  return await this.save();
+};
+
+// Separate methods to check if a post is saved or liked
+userSchema.methods.isPostSaved = function (postId) {
+  return this.savedPosts.some(
+    (id) => id.toString() === postId.toString()
+  );
 };
 
 
