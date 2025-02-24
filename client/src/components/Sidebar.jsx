@@ -13,6 +13,7 @@ export default function Sidebar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
 
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest('.dropdown-trigger') && 
@@ -37,37 +38,55 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed sm:left-0 sm:top-0 sm:h-screen sm:w-20 bottom-0 left-0 w-full h-20 flex sm:flex-col flex-row bg-white shadow-lg z-50">
+    <div className="fixed md:left-0 md:top-0 bottom-0 w-full md:w-20 h-16 md:h-screen flex flex-row md:flex-col bg-white shadow-lg z-50">
       {/* Notifications Dropdown */}
-      {showNotifications && (
-        <div className="sm:absolute absolute sm:left-20 sm:top-14 bottom-20 left-4 dropdown-panel">
-          <div className="ml-2 w-72 bg-white rounded-lg shadow-xl border transform transition-all duration-300 origin-left sm:origin-top-left origin-bottom-left">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold text-gray-700">Notifications</h3>
+      <div className={`absolute md:left-20 md:top-0 md:bottom-0 bottom-16 left-0 right-0 w-full md:w-96 dropdown-panel
+        ${showNotifications ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[-20px]'} 
+        transition-all duration-300 ease-out`}>
+        {showNotifications && (
+          <div className="w-full md:w-96 h-full bg-white shadow-2xl transform transition-transform duration-300">
+            <div className="p-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                <BellIcon className="h-5 w-5" />
+                Notifications
+              </h3>
             </div>
-            <div className="p-4 text-gray-500">
-              {/* Empty content for now */}
+            <div className="p-4 text-gray-500 h-[calc(100%-56px)] overflow-y-auto space-y-4">
+              {/* Empty content */}
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-100 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Messages Dropdown */}
-      {showMessages && (
-        <div className="sm:absolute absolute sm:left-20 sm:top-32 bottom-20 left-4 dropdown-panel">
-          <div className="ml-2 w-72 h-full bg-white rounded-lg shadow-xl border transform transition-all duration-300 origin-left sm:origin-top-left origin-bottom-left">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold text-gray-700">Messages</h3>
+      <div className={`absolute md:left-20 md:top-0 md:bottom-0 bottom-16 left-0 right-0 w-full md:w-96 dropdown-panel
+        ${showMessages ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[-20px]'} 
+        transition-all duration-300 ease-out`}>
+        {showMessages && (
+          <div className="w-full md:w-96 h-full bg-white shadow-2xl transform transition-transform duration-300">
+            <div className="p-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                <ChatBubbleOvalLeftIcon className="h-5 w-5" />
+                Messages
+              </h3>
             </div>
-            <div className="p-4 text-gray-500">
-              {/* Empty content for now */}
+            <div className="p-4 text-gray-500 h-[calc(100%-56px)] overflow-y-auto space-y-4">
+              {/* Empty content */}
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-100 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Mobile Bottom Bar Content */}
-      <div className="flex-1 flex sm:flex-col flex-row items-center justify-center sm:py-4 sm:space-y-6 space-x-6 sm:space-x-0">
+      {/* Main Icons Container */}
+      <div className="flex-1 flex md:flex-col flex-row items-center justify-center md:justify-start md:py-4 md:space-y-6 space-x-6 md:space-x-0">
         <Link to="/" className="p-2 hover:bg-gray-100 rounded-full dropdown-trigger">
           <HomeIcon className="h-8 w-8 text-gray-700" />
         </Link>
@@ -94,9 +113,18 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Settings Icon - Hidden on mobile */}
-      <div className="hidden sm:block py-4 flex flex-col items-center">
+      {/* Bottom Settings (Desktop) */}
+      <div className="hidden md:flex py-4 flex-col items-center">
         <button className="p-2 hover:bg-gray-100 rounded-full dropdown-trigger">
+          <Link to="/updateProfile">
+            <Cog6ToothIcon className="h-8 w-8 text-gray-700" />
+          </Link>
+        </button>
+      </div>
+
+      {/* Mobile Settings */}
+      <div className="md:hidden flex items-center justify-center p-2">
+        <button className="hover:bg-gray-100 rounded-full dropdown-trigger">
           <Link to="/updateProfile">
             <Cog6ToothIcon className="h-8 w-8 text-gray-700" />
           </Link>
