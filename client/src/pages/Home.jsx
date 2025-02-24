@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import PostCard from "../components/PostCard";
 import PostService from "../services/PostService";
 import Spinner from "../components/Spinner"; // Assume you have a Spinner component
+import { Link } from "react-router-dom";
 
 const HomePage = ({ user }) => {
   const [posts, setPosts] = useState([]);
@@ -22,7 +23,7 @@ const HomePage = ({ user }) => {
       try {
         const data = await PostService.getAllPosts();
         setPosts(data.data.posts);
-        console.log(data.data.posts)
+        console.log(data.data.posts);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -63,8 +64,9 @@ const HomePage = ({ user }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
-            
-            <PostCard postId={post.id} />
+            <Link to={`/post/${post.id}`}>
+              <PostCard postId={post.id} />
+            </Link>
           </motion.div>
         ))}
       </Masonry>

@@ -51,7 +51,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/post/:id" element={<PostDetails />} />
+          <Route path="/post/:postId" element={<PostDetails />} />
           <Route path="/boards" element={<Boards />} />
           <Route path="/profile/:id" element={<UserProfile />} />
 

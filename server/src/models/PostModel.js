@@ -81,6 +81,7 @@ postSchema.methods.getPostInfo = function (userId, userSavedPosts = []) {
       liked,
     },
     comments: {
+      comments: this.comments,
       count: this.comments.length,
       commented,
     },
