@@ -16,7 +16,7 @@ import {
   searchPosts,
   updatePost,
 } from "../controllers/PostController.js";
-import authenticateUser from "../middleware/authenticateUser.js";
+import authenticateUser, { getUserToken } from "../middleware/authenticateUser.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import upload from "../config/multerConfig.js";
 import {
@@ -35,7 +35,7 @@ const postRoutes = express.Router();
 
 postRoutes
   .route("/")
-  .get(asyncHandler(getAllPost))
+  .get(asyncHandler(getUserToken),asyncHandler(getAllPost))
   .post(
     asyncHandler(authenticateUser),
     upload.single("postImage"),
@@ -45,7 +45,7 @@ postRoutes
 
 postRoutes
   .route("/:id")
-  .get(getPostByIdValidator, getPostById)
+  .get(asyncHandler(getUserToken),getPostByIdValidator, asyncHandler(getPostById))
   .patch(
     asyncHandler(authenticateUser),
     upload.single("postImage"),

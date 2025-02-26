@@ -12,7 +12,24 @@ export default async function authenticateUser(req, res, next) {
       401
     );
 
-    const decoded = decodeJWT(jwtToken)
+  const decoded = decodeJWT(jwtToken);
+
+  const user = await UserModel.findById(decoded.id);
+  if (!user) {
+    res.cookie("jwt", "loggedout", {
+      expires: new Date(Date.now()), // Expire immediately
+    });
+    throw new AppError("Invalid token. Please log in again.", 401);
+  }
+  req.user = decoded.id;
+  next();
+}
+
+export async function getUserToken(req, res, next) {
+  const jwtToken = req.cookies.jwt;
+
+  if (jwtToken) {
+    const decoded = decodeJWT(jwtToken);
 
     const user = await UserModel.findById(decoded.id);
     if (!user) {
@@ -22,6 +39,6 @@ export default async function authenticateUser(req, res, next) {
       throw new AppError("Invalid token. Please log in again.", 401);
     }
     req.user = decoded.id;
-    next();
+  }
+  next();
 }
-
