@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import fs from "fs";
+
 
 export function validateRequest(req, res, next) {
   const errors = validationResult(req);

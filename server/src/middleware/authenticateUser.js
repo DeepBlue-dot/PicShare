@@ -1,6 +1,5 @@
 import UserModel from "../models/UserModel.js";
 import AppError from "../utils/appError.js";
-import jwt from "jsonwebtoken";
 import decodeJWT from "../utils/decodeJwt.js";
 
 export default async function authenticateUser(req, res, next) {
